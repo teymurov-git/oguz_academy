@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="az">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Əlaqə</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+      integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+
+  <body>
+    <header>
+      <div class="logo">
+        <a href="index.html"><img src="./images/image.png" /></a>
+      </div>
+
+      <nav>
+        <ul id="mainMenu">
+          <li><a href="index.html">Əsas Səhifə</a></li>
+          <li><a href="about.html">Haqqımızda</a></li>
+          <li class="dropdown">
+            <a href="#" id="coursesMenu">Kurslarımız</a>
+            <div class="dropdown-content" id="dropdownMenu">
+              <a href="courses/python.html"
+                >Proqramlaşdırma və Alqoritm (Python əsaslı)</a
+              >
+              <a href="courses/django.html"
+                >Veb Proqramlaşdırma <br />
+                (Python & Django)</a
+              >
+              <a href="courses/language.html"
+                >Xarici dil <br />
+                (Rus, İngilis, Fransız, Alman)</a
+              >
+              <a href="courses/middle-school.html"
+                >Təkmilləşdirmə kursları <br />
+                (5–8 siniflər)</a
+              >
+              <a href="courses/miq.html"
+                >Müəllimlərin İşə Qəbulu <br />
+                (MİQ)</a
+              >
+              <a href="courses/informatics.html">İnformatika Dərsləri</a>
+              <a href="courses/abiturient.html">Abituriyent hazırlığı</a>
+              <a href="courses/lyceum.html">Liseylərə hazırlıq</a>
+            </div>
+          </li>
+          <li><a href="events.html">Tədbirlərimiz</a></li>
+          <li><a href="contact.html">Əlaqə</a></li>
+        </ul>
+      </nav>
+
+      <div class="actions">
+        <i class="fa-solid fa-arrow-right-to-bracket" id="loginIcon"></i>
+        <i class="fas fa-user" id="registerIcon"></i>
+        <i class="fas fa-search" id="searchIcon"></i>
+        <i class="fa-solid fa-bars" id="menuToggle"></i>
+      </div>
+    </header>
+
+    <main>
+      <div class="contact-section">
+        <h1>Bizimlə Əlaqə Saxlayın</h1>
+
+        <div class="contact-container">
+          <div class="cards">
+            <div class="card">
+              <i class="fa-solid fa-globe"></i>
+              <h4>Veb Saytımız</h4>
+              <p>
+                <a
+                  href="https://www.instagram.com/oguztedrismerkezi/"
+                  target="_blank"
+                >
+                  @oguztedrismerkezi
+                </a>
+              </p>
+            </div>
+
+            <div class="card">
+              <i class="fa-solid fa-envelope"></i>
+              <h4>Bizə E-poçt Göndərin</h4>
+              <p>
+                <a href="mailto:oguztehsilmerkezi@gmail.com"
+                  >oguztehsilmerkezi@gmail.com</a
+                >
+              </p>
+            </div>
+
+            <div class="card">
+              <i class="fa-solid fa-phone"></i>
+              <h4>Bizə Zəng Edin</h4>
+              <p>
+                <a href="tel:+994705037020">+994 70 503 70 20</a>
+              </p>
+            </div>
+
+            <div class="card">
+              <i class="fa-solid fa-location-dot"></i>
+              <h4>Məkanımız</h4>
+              <p>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Balababa+Məcidov+55,+Bakı,+Azərbaycan"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Balababa Məcidov 55, Bakı, Azərbaycan
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <form class="contact-form">
+            <input type="text" placeholder="Name" required />
+            <input type="email" placeholder="Email" required />
+            <input type="tel" placeholder="Phone" required />
+            <input type="text" placeholder="Subject" required />
+            <textarea placeholder="Your message" rows="4" required></textarea>
+            <button type="submit">Submit now</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="map">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1562.3253828800798!2d49.83263956437752!3d40.38210502857625!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40307d9889f00001%3A0x463adfe07990e374!2s55%20Balababa%20Majidov%20St%2C%20Baku%201009!5e0!3m2!1str!2saz!4v1753666477761!5m2!1str!2saz"
+          width="600"
+          height="450"
+          style="border: 0"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </main>
+
+    <footer>
+      <div class="contact">
+        <div>
+          <h3>Oğuz Tədris Mərkəzi</h3>
+          <p>
+            Texnologiya və proqramlaşdırma sahəsində gələcəyinizi bizimlə qurun.
+            Peşəkar müəllimlər və real layihələr sizi gözləyir.
+          </p>
+          <div class="social">
+            <a
+              href="https://www.instagram.com/oguztedrismerkezi/"
+              target="_blank"
+            >
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+
+            <i class="fa-brands fa-facebook"></i>
+            <i class="fa-brands fa-youtube"></i>
+          </div>
+        </div>
+
+        <div class="navigasiya">
+          <h3>Navigasiya</h3>
+          <ul class="footer-nav">
+            <li><a href="./index.html">Əsas Səhifə</a></li>
+            <li><a href="./about.html">Haqqımızda</a></li>
+            <li><a href="./events.html">Tədbirlərimiz</a></li>
+            <li><a href="./contact.html">Əlaqə</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Əlaqə</h3>
+          <p>
+            <i class="fa-solid fa-phone"></i> Telefon:
+            <a href="tel:+994705037020">+994 70 503 70 20</a>
+          </p>
+          <p>
+            <i class="fa-solid fa-envelope"></i> Email:
+            <a href="mailto:oguztehsilmerkezi@gmail.com"
+              >oguztehsilmerkezi@gmail.com</a
+            >
+          </p>
+          <p>
+            <i class="fa-solid fa-location-dot"></i>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Balababa+Məcidov+55,+Bakı,+Azərbaycan"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Balababa Məcidov 55, Bakı, Azərbaycan
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <p>&copy; 2025 Oğuz Tədris Mərkəzi. Bütün hüquqlar qorunur.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
