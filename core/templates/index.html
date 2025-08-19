@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Əsas Səhifə</title>
 
-    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
-    <link rel="stylesheet" href="{% static '/css/responsive.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
@@ -22,7 +22,7 @@
     <header>
       <div class="logo">
         <a href="{% url 'home' %}">
-          <img src="{% static '/images/image.png' %}" />
+          <img src="{% static 'static/images/image.png' %}" />
         </a>
       </div>
 
@@ -81,9 +81,9 @@
         </div>
 
         <div class="main-photos">
-          <img src="{% static '/images/image1.png' %}" alt="Şəkil 1" />
-          <img src="{% static '/images/image2.png' %}" alt="Şəkil 2" />
-          <img src="{% static '/images/image3.png' %}" alt="Şəkil 3" />
+          <img src="{% static 'images/image1.png' %}" alt="Şəkil 1" />
+          <img src="{% static 'images/image2.png' %}" alt="Şəkil 2" />
+          <img src="{% static 'images/image3.png' %}" alt="Şəkil 3" />
         </div>
       </section>
     </main>
@@ -147,6 +147,6 @@
       <p>&copy; 2025 Oğuz Tədris Mərkəzi. Bütün hüquqlar qorunur.</p>
     </footer>
 
-    <script src="{% static '/js/main.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
   </body>
 </html>
