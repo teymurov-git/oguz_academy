@@ -613,7 +613,7 @@ footer > p {
 
 .search-section {
   text-align: center;
-  padding: 40px 20px;
+  padding: 90px 20px;
 
   h2 {
     padding-bottom: 25px;
@@ -645,6 +645,146 @@ footer > p {
   background-color: rgb(8, 8, 101);
 }
 
-.search-form button:hover {
+/* Fayl yukleme */
+
+.file-upload {
+  width: 100%;
+  height: 45px;
+  display: block;
+  cursor: pointer;
+  overflow: hidden;
+  max-width: 300px;
+  text-align: center;
+  border-radius: 8px;
+  position: relative;
+  margin-bottom: 15px;
+  background: #f9f9f9;
+  border: 2px dashed #ccc;
+}
+
+.file-upload input[type="file"] {
+  top: 0;
+  left: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  position: absolute;
+}
+
+.file-upload span {
+  color: #555;
+  font-size: 14px;
+  line-height: 45px;
+  pointer-events: none;
+}
+
+.file-upload:hover {
+  background: #eef5ff;
+  border-color: #0077ff;
+}
+
+/* profile page */
+
+.profile-section {
+  display: flex;
+  padding: 50px 20px;
+  justify-content: center;
+  background-color: #f0f2f5;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  padding: 30px 20px;
+  border-radius: 15px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar-wrapper {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.user-avatar {
+  width: 130px;
+  height: 130px;
+  display: block;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0 auto 10px auto;
   background-color: rgb(8, 8, 101);
+}
+
+.file-upload {
+  width: 100%;
+  height: 45px;
+  color: #555;
+  display: block;
+  cursor: pointer;
+  font-size: 14px;
+  max-width: 300px;
+  line-height: 45px;
+  position: relative;
+  border-radius: 8px;
+  text-align: center;
+  background: #f9f9f9;
+  border: 2px dashed #ccc;
+  margin: 0 auto 15px auto;
+  transition: all 0.3s ease;
+}
+
+.file-upload:hover {
+  background: #eef5ff;
+  border-color: rgb(8, 8, 101);
+}
+
+.file-upload input[type="file"] {
+  top: 0;
+  left: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  position: absolute;
+}
+
+#fullname {
+  margin: 10px 0;
+  font-size: 22px;
+  color: rgb(8, 8, 101);
+}
+
+#email {
+  font-size: 16px;
+  color: #383251;
+}
+
+.password-wrapper {
+  margin: 20px 0;
+}
+
+.password-wrapper input {
+  width: 80%;
+  padding: 12px;
+  cursor: default;
+  font-size: 16px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+.logout-btn {
+  color: #fff;
+  font-size: 16px;
+  margin-top: 20px;
+  padding: 12px 25px;
+  border-radius: 6px;
+  display: inline-block;
+  text-decoration: none;
+  background-color: rgb(8, 8, 101);
+  transition: background-color 0.3s ease;
 }
