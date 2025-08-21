@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Əsas Səhifə</title>
 
-    <link rel="stylesheet" href="{% static 'static/css/style.css' %}" />
-    <link rel="stylesheet" href="{% static 'static/css/responsive.css' %}" />
+    <link rel="stylesheet" href="{% static '../static/css/style.css' %}" />
+    <link rel="stylesheet" href="{% static '../static/css/responsive.css' %}" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
@@ -22,7 +22,7 @@
     <header>
       <div class="logo">
         <a href="{% url 'home' %}">
-          <img src="{% static 'static/./images/image.png' %}" />
+          <img src="{% static '../static/images/image.png' %}" />
         </a>
       </div>
 
@@ -65,11 +65,10 @@
       <div class="actions">
         <i class="fa-solid fa-arrow-right-to-bracket" id="loginIcon"></i>
         <i class="fas fa-user" id="registerIcon"></i>
-        <i class="fas fa-search" id="searchIcon"></i>
         <i class="fa-solid fa-bars" id="menuToggle"></i>
       </div>
     </header>
-
+{% block content %}
     <main>
       <section class="welcome">
         <div>
@@ -79,14 +78,15 @@
             özünüzü gücləndirin!
           </p>
         </div>
-
+        
         <div class="main-photos">
-          <img src="{% static 'static/./images/image1.png' %}" alt="Şəkil 1" />
-          <img src="{% static 'static/./images/image2.png' %}" alt="Şəkil 2" />
-          <img src="{% static 'static/./images/image3.png' %}" alt="Şəkil 3" />
+          <img src="{% static '../static/images/image1.png' %}" alt="Şəkil 1" />
+          <img src="{% static '../static/images/image2.png' %}" alt="Şəkil 2" />
+          <img src="{% static '../static/images/image3.png' %}" alt="Şəkil 3" />
         </div>
       </section>
     </main>
+{% endblock %}
 
     <footer>
       <div class="contact">
@@ -147,6 +147,10 @@
       <p>&copy; 2025 Oğuz Tədris Mərkəzi. Bütün hüquqlar qorunur.</p>
     </footer>
 
-    <script src="{% static 'static/js/main.js' %}"></script>
+
+{% block js %}
+    <script src="{% static '../static/js/main.js' %}"></script>
+{% endblock %}  
+
   </body>
 </html>
