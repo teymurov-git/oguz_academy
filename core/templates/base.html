@@ -64,7 +64,11 @@
 
       <div class="actions">
         <i class="fa-solid fa-arrow-right-to-bracket" id="loginIcon"></i>
-        <i class="fas fa-user" id="registerIcon"></i>
+        <a href="{% url 'login' %}">
+          <i class="fas fa-user" id="registerIcon"></i>
+        </a>
+
+        <!-- <i class="fas fa-user" id="registerIcon"></i> -->
         <i class="fa-solid fa-bars" id="menuToggle"></i>
       </div>
     </header>

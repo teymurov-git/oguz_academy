@@ -1,73 +1,8 @@
-<!DOCTYPE html>
-<html lang="az">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Təkmilləşdirmə Kursları</title>
+{% extends 'base.html' %}
+{% load static %}
 
-    <link rel="stylesheet" href="../css/style.css" />
-    <link rel="stylesheet" href="../css/responsive.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
-      integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-  </head>
 
-  <body>
-    <header>
-      <div class="logo">
-        <a href="../index.html">
-          <img src="../images/image.png" />
-        </a>
-      </div>
-
-      <nav>
-        <ul id="mainMenu">
-          <li><a href="../index.html">Əsas Səhifə</a></li>
-          <li><a href="../about.html">Haqqımızda</a></li>
-          <li class="dropdown">
-            <a href="#" id="coursesMenu">Kurslarımız</a>
-            <div class="dropdown-content" id="dropdownMenu">
-              <a href="./python.html"
-                >Proqramlaşdırma və Alqoritm (Python əsaslı)</a
-              >
-              <a href="./django.html"
-                >Veb Proqramlaşdırma <br />
-                (Python & Django)</a
-              >
-              <a href="./language.html"
-                >Xarici dil <br />
-                (Rus, İngilis, Fransız, Alman)</a
-              >
-              <a href="./middle-school.html"
-                >Təkmilləşdirmə kursları <br />
-                (5–8 siniflər)</a
-              >
-              <a href="./miq.html"
-                >Müəllimlərin İşə Qəbulu <br />
-                (MİQ)</a
-              >
-              <a href="./informatics.html">İnformatika Dərsləri</a>
-              <a href="./abiturient.html">Abituriyent hazırlığı</a>
-              <a href="./lyceum.html">Liseylərə hazırlıq</a>
-            </div>
-          </li>
-          <li><a href="../events.html">Tədbirlərimiz</a></li>
-          <li><a href="../contact.html">Əlaqə</a></li>
-        </ul>
-      </nav>
-
-      <div class="actions">
-        <i class="fa-solid fa-arrow-right-to-bracket" id="loginIcon"></i>
-        <i class="fas fa-user" id="registerIcon"></i>
-        <i class="fas fa-search" id="searchIcon"></i>
-        <i class="fa-solid fa-bars" id="menuToggle"></i>
-      </div>
-    </header>
-
+{% block content %}
     <section class="kurs-python-banner">
       <h1>Təkmilləşdirmə Kursları (5–8-ci siniflər)</h1>
     </section>
@@ -82,66 +17,8 @@
         dərslərdən zövq alır və özünəinamları artır.
       </p>
     </section>
+{% endblock %}
 
-    <footer>
-      <div class="contact">
-        <div>
-          <h3>Oğuz Tədris Mərkəzi</h3>
-          <p>
-            Texnologiya və proqramlaşdırma sahəsində gələcəyinizi bizimlə qurun.
-            Peşəkar müəllimlər və real layihələr sizi gözləyir.
-          </p>
-          <div class="social">
-            <a
-              href="https://www.instagram.com/oguztedrismerkezi/"
-              target="_blank"
-            >
-              <i class="fa-brands fa-instagram"></i>
-            </a>
-            <i class="fa-brands fa-facebook"></i>
-            <i class="fa-brands fa-youtube"></i>
-          </div>
-        </div>
-
-        <div class="navigasiya">
-          <h3>Navigasiya</h3>
-          <ul class="footer-nav">
-            <li><a href="../index.html">Əsas Səhifə</a></li>
-            <li><a href="../about.html">Haqqımızda</a></li>
-            <li><a href="../events.html">Tədbirlərimiz</a></li>
-            <li><a href="../contact.html">Əlaqə</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h3>Əlaqə</h3>
-          <p>
-            <i class="fa-solid fa-phone"></i>
-            Telefon: <a href="tel:+994705037020">+994 70 503 70 20</a>
-          </p>
-          <p>
-            <i class="fa-solid fa-envelope"></i>
-            Email:
-            <a href="mailto:oguztehsilmerkezi@gmail.com">
-              oguztehsilmerkezi@gmail.com
-            </a>
-          </p>
-          <p>
-            <i class="fa-solid fa-location-dot"></i>
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Balababa+Məcidov+55,+Bakı,+Azərbaycan"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Balababa Məcidov 55, Bakı, Azərbaycan
-            </a>
-          </p>
-        </div>
-      </div>
-
-      <p>&copy; 2025 Oğuz Tədris Mərkəzi. Bütün hüquqlar qorunur.</p>
-    </footer>
-
+{% block js %}
     <script src="../js/main.js"></script>
-  </body>
-</html>
+{% endblock %}
