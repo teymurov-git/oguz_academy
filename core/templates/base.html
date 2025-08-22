@@ -19,59 +19,57 @@
   </head>
 
   <body>
-    <header>
-      <div class="logo">
-        <a href="{% url 'home' %}">
-          <img src="{% static '../static/images/image.png' %}" />
-        </a>
-      </div>
+  <header>
+    <div class="logo">
+      <a href="{% url 'home' %}">
+        <img src="{% static 'images/image.png' %}" />
+      </a>
+    </div>
 
-      <nav>
-        <ul id="mainMenu">
-          <li><a href="{% url 'home' %}">Əsas Səhifə</a></li>
-          <li><a href="{% url 'about' %}">Haqqımızda</a></li>
-          <li class="dropdown">
-            <a href="#" id="coursesMenu">Kurslarımız</a>
-            <div class="dropdown-content" id="dropdownMenu">
-              <a href="{% url 'python' %}"
-                >Proqramlaşdırma və Alqoritm (Python əsaslı)</a
-              >
-              <a href="{% url 'django' %}"
-                >Veb Proqramlaşdırma <br />
-                (Python & Django)</a
-              >
-              <a href="{% url 'language' %}"
-                >Xarici dil <br />
-                (Rus, İngilis, Fransız, Alman)</a
-              >
-              <a href="{% url 'middleschool' %}"
-                >Təkmilləşdirmə kursları <br />
-                (5–8 siniflər)</a
-              >
-              <a href="{% url 'miq' %}"
-                >Müəllimlərin İşə Qəbulu <br />
-                (MİQ)</a
-              >
-              <a href="{% url 'informatics' %}">İnformatika Dərsləri</a>
-              <a href="{% url 'abiturient' %}">Abituriyent hazırlığı</a>
-              <a href="{% url 'lyceum' %}">Liseylərə hazırlıq</a>
-            </div>
-          </li>
-          <li><a href="{% url 'events' %}">Tədbirlərimiz</a></li>
-          <li><a href="{% url 'contact' %}">Əlaqə</a></li>
-        </ul>
-      </nav>
+    <nav>
+      <ul id="mainMenu">
+        <li><a href="{% url 'home' %}">Əsas Səhifə</a></li>
+        <li><a href="{% url 'about' %}">Haqqımızda</a></li>
+        <li class="dropdown">
+          <a href="#" id="coursesMenu">Kurslarımız</a>
+          <div class="dropdown-content" id="dropdownMenu">
+            <a href="{% url 'python' %}">Proqramlaşdırma və Alqoritm (Python əsaslı)</a>
+            <a href="{% url 'django' %}">Veb Proqramlaşdırma <br />(Python & Django)</a>
+            <a href="{% url 'language' %}">Xarici dil <br />(Rus, İngilis, Fransız, Alman)</a>
+            <a href="{% url 'middleschool' %}">Təkmilləşdirmə kursları <br />(5–8 siniflər)</a>
+            <a href="{% url 'miq' %}">Müəllimlərin İşə Qəbulu <br />(MİQ)</a>
+            <a href="{% url 'informatics' %}">İnformatika Dərsləri</a>
+            <a href="{% url 'abiturient' %}">Abituriyent hazırlığı</a>
+            <a href="{% url 'lyceum' %}">Liseylərə hazırlıq</a>
+          </div>
+        </li>
+        <li><a href="{% url 'events' %}">Tədbirlərimiz</a></li>
+        <li><a href="{% url 'contact' %}">Əlaqə</a></li>
+        {% if user.is_authenticated %}
+        <li><a href="{% url 'profile' %}">Profil</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+    
+    <div class="auth-actions">
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="auth-btn" title="Çıxış" style="background: none; border: none; cursor: pointer;">
+                    <i class="fas fa-sign-out-alt" style="font-size: 20px; color: #333;"></i>
+                </button>
+            </form>
+        </form>
+      {% else %}
+      <a href="{% url 'login' %}" class="auth-btn" title="Giriş" style="text-decoration: none; background: none; border: none; cursor: pointer;">
+          <i class="fas fa-user" style="font-size: 20px; color: #333;"></i>
+      </a>
+      {% endif %}
+    </div>
+  </header>
 
-      <div class="actions">
-        <i class="fa-solid fa-arrow-right-to-bracket" id="loginIcon"></i>
-        <a href="{% url 'login' %}">
-          <i class="fas fa-user" id="registerIcon"></i>
-        </a>
-
-        <!-- <i class="fas fa-user" id="registerIcon"></i> -->
-        <i class="fa-solid fa-bars" id="menuToggle"></i>
-      </div>
-    </header>
 {% block content %}
     <main>
       <section class="welcome">

@@ -6,19 +6,20 @@
       <h1>Daxil ol</h1>
       <div class="form-container">
         <div class="form-box">
-          <form>
-            <label>İstifadəçi adı və ya e-poçt ünvanı *</label>
-            <input type="text" required />
+          <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <label>E-Poçt ünvanı *</label>
+            {{ form.username }}
+            {{ form.username.errors }}
 
             <label>Şifrə *</label>
-            <input type="password" required />
+            {{ form.password }}
+            {{ form.password.errors }}
 
             <div class="form-actions">
-              <label><input type="checkbox" /> Məni yadda saxla</label>
+              <a href="{% url 'register' %}">Hesabınız yoxdur?</a>
               <button type="submit">Daxil ol</button>
             </div>
-
-            <a href="{% url 'register' %}">Şifrənizi unutmusunuz?</a>
           </form>
         </div>
       </div>
@@ -26,5 +27,5 @@
 {% endblock %}
 
 {% block js %}
-    <script src="./js/main.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
 {% endblock %}

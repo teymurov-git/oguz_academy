@@ -6,19 +6,41 @@
       <h1>Qeydiyyatdan keç</h1>
       <div class="form-container">
         <div class="form-box">
-          <form>
+        <form id="registerForm" method="post" action="{% url 'register' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label>Ad *</label>
+            <!-- <input type="text" name="firstname" required /> -->
+            {{form.first_name}}
+            {{form.first_name.errors}}
+
+            <label>Soyad *</label>
+            <!-- <input type="text" name="lastname" required /> -->
+            {{form.last_name}}
+            {{form.last_name.errors}}
+
             <label>E-poçt ünvanı *</label>
-            <input type="email" required />
+            <!-- <input type="email" name="email" required /> -->
+            {{form.email}}
+            {{form.email.errors}}
 
             <label>Şifrə *</label>
-            <input type="password" required />
+            <!-- <input type="password" name="password" required /> -->
+            {{form.password}}
+            {{form.password.errors}}
 
-            <p class="privacy-text">
-              Şəxsi məlumatlarınız bu vebsaytda təcrübənizi dəstəkləmək,
-              hesabınıza giriş imkanını idarə etmək və məxfilik siyasətimizdə
-              göstərilən digər məqsədlər üçün istifadə olunacaq.
-            </p>
-
+            <label for="profileImage">Şəkil yüklə *</label>
+            <!-- <div class="file-upload">
+              <input
+                type="file"
+                id="profileImage"
+                name="profileImage"
+                accept="image/*"
+                required
+              />
+              <span>Fayl seçilməyib</span>
+            </div> -->
+            {{form.photo}}
+            {{form.photo.errors}}
             <button type="submit">Qeydiyyatdan keç</button>
           </form>
         </div>
