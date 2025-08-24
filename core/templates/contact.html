@@ -54,12 +54,24 @@
             </div>
           </div>
 
-          <form class="contact-form">
-            <input type="text" placeholder="Firstname" required />
-            <input type="text" placeholder="Lastname" required />
-            <input type="email" placeholder="Email" required />
-            <input type="tel" placeholder="Phone" required />
-            <textarea placeholder="Your message" rows="4" required></textarea>
+          <form class="contact-form" method="post">
+            {% csrf_token %}
+            
+            <!-- <input type="text" placeholder="Firstname" required /> -->
+            {{form.first_name}}
+            {{form.first_name.errors}}
+            <!-- <input type="text" placeholder="Lastname" required /> -->
+            {{form.last_name}}
+            {{form.last_name.errors}}
+            <!-- <input type="email" placeholder="Email" required /> -->
+            {{form.email}}
+            {{form.email.errors}}
+            <!-- <input type="tel" placeholder="Phone" required /> -->
+            {{form.phone}}
+            {{form.phone.errors}}
+            <!-- <textarea placeholder="Your message" rows="4" required></textarea> -->
+            {{form.message}}
+            {{form.message.errors}}
             <button type="submit">Submit now</button>
           </form>
         </div>

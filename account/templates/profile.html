@@ -5,11 +5,7 @@
     <section class="profile-section">
       <div class="profile-card">
         <div class="profile-avatar">
-          {% if request.user.photo %}
-              <img src="{{request.user.photo.url}}" alt="" width="315px" height="315px">
-          {% else %}   
-              <img src="{% static '../static/images/default-avatar.png' %}" alt="şəkil" id="profileImg" />
-          {% endif %}
+              <img src="{% static '../static/images/avatar.png' %}" alt="şəkil" id="profileImg" width="315px" height="315px"/>
         </div>
         <h2 id="fullname">{{user.get_full_name}}</h2>
         <p>

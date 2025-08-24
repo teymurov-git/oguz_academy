@@ -6,48 +6,36 @@
       <h1>Qeydiyyatdan keç</h1>
       <div class="form-container">
         <div class="form-box">
-        <form id="registerForm" method="post" action="{% url 'register' %}" enctype="multipart/form-data">
+          <form id="registerForm" method="post" action="{% url 'register' %}" enctype="multipart/form-data">
             {% csrf_token %}
+            {{ form.email.errors }}
+            
             <label>Ad *</label>
-            <!-- <input type="text" name="firstname" required /> -->
-            {{form.first_name}}
-            {{form.first_name.errors}}
+            {{ form.first_name }}
+          {{ form.first_name.errors }}
+          
+          <label>Soyad *</label>
+          {{ form.last_name }}
+          {{ form.last_name.errors }}
 
-            <label>Soyad *</label>
-            <!-- <input type="text" name="lastname" required /> -->
-            {{form.last_name}}
-            {{form.last_name.errors}}
-
-            <label>E-poçt ünvanı *</label>
-            <!-- <input type="email" name="email" required /> -->
-            {{form.email}}
-            {{form.email.errors}}
-
-            <label>Şifrə *</label>
-            <!-- <input type="password" name="password" required /> -->
-            {{form.password}}
-            {{form.password.errors}}
-
-            <label for="profileImage">Şəkil yüklə *</label>
-            <!-- <div class="file-upload">
-              <input
-                type="file"
-                id="profileImage"
-                name="profileImage"
-                accept="image/*"
-                required
-              />
-              <span>Fayl seçilməyib</span>
-            </div> -->
-            {{form.photo}}
-            {{form.photo.errors}}
-            <button type="submit">Qeydiyyatdan keç</button>
-          </form>
-        </div>
+          <label>E-poçt ünvanı *</label>
+          {{ form.email }}
+          
+          <label>İstifadəçi adı *</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+          
+          <label>Şifrə *</label>
+          {{ form.password }}
+          {{ form.password.errors }}
+          
+          <button type="submit">Qeydiyyatdan keç</button>
+      </form>
+      </div>
       </div>
     </section>
 {% endblock %}
 
 {% block js %}
-    <script src="./js/main.js"></script>
+    <script src="{% static '../static/js/main.js' %}"></script>
 {% endblock %}

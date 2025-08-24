@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, re_path
-from account.views import UserSignInView,register, profile, logout, activate
+from account.views import UserSignInView, register, profile, logout, activate
 
 urlpatterns = [
     path('login/', UserSignInView.as_view(), name = 'login'),

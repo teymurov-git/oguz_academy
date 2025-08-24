@@ -40,32 +40,48 @@ class UserSignInView(LoginView):
 #     return render(request, 'signin.html', context)
 
 
+from django.shortcuts import render, redirect
+from .forms import RegisterForm
+
 def register(request):
-    if request.method == 'POST':
-        form = RegisterForm(data=request.POST, files=request.FILES)
+    if request.method == "POST":
+        form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])  
-            user.is_active = True  
-            user.save()
-            current_site = get_current_site(request)
-            subject = 'Activate Your MySite Account'
-            message = render_to_string('account_activation_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.id)),
-                'token': account_activation_token.make_token(user),
-            })
-            user.email_user(subject, message)
-            messages.success(request, 'Signup process is completed!')
-            return redirect('signin')  
-        else:
-            messages.error(request, 'Please correct the errors below.')
+            user = form.save()
+            # Əgər Profile modelində şəkil saxlanırsa:
+            return redirect("login")  # qeydiyyatdan sonra login səhifəsinə yönləndir
     else:
         form = RegisterForm()
+    return render(request, "register.html", {"form": form})
 
-    context = {'form': form}
-    return render(request, 'register.html', context)
+
+
+# def register(request):
+#     if request.method == 'POST':
+#         form = RegisterForm(data=request.POST, files=request.FILES)
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             user.set_password(form.cleaned_data['password'])  
+#             user.is_active = False  
+#             user.save()
+#             current_site = get_current_site(request)
+#             subject = 'Activate Your MySite Account'
+#             message = render_to_string('account_activation_email.html', {
+#                 'user': user,
+#                 'domain': current_site.domain,
+#                 'uid': urlsafe_base64_encode(force_bytes(user.id)),
+#                 'token': account_activation_token.make_token(user),
+#             })
+#             user.email_user(subject, message)
+#             messages.success(request, 'Signup process is completed!')
+#             return redirect('login')  
+#         else:
+#             messages.error(request, 'Please correct the errors below.')
+#     else:
+#         form = RegisterForm()
+
+#     context = {'form': form}
+#     return render(request, 'register.html', context)
 
 
 def logout(request):

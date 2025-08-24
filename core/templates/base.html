@@ -47,6 +47,8 @@
         <li><a href="{% url 'contact' %}">Əlaqə</a></li>
         {% if user.is_authenticated %}
         <li><a href="{% url 'profile' %}">Profil</a></li>
+        {% else %}
+        <li><a href="{% url 'login' %}">Profil</a></li>
         {% endif %}
       </ul>
     </nav>
