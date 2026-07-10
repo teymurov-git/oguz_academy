@@ -27,10 +27,15 @@ python manage.py runserver
 | Directory | Purpose | Entrypoint |
 |-----------|---------|------------|
 | `account/` | Registration, login, profile, logout | `account/urls.py` |
-| `core/` | Home, about, contact, events, search | `core/urls.py` |
-| `courses/` | Static course info pages (8 routes) | `courses/urls.py` |
+| `core/` | Home, about, contact, events, search, dashboard | `core/urls.py` |
+| `courses/` | Static course info pages, exams + registration, Course & Group CRUD | `courses/urls.py` |
+| `students/` | Student management (linked to User via OneToOneField) | `students/urls.py` |
+| `teachers/` | Teacher management (linked to User via OneToOneField) | `teachers/urls.py` |
+| `payments/` | Payment tracking per student | `payments/urls.py` |
+| `attendance/` | Daily attendance per student per group | `attendance/urls.py` |
 
-All app URLs are included at root under `''`.
+URL prefixes: `/students/`, `/teachers/`, `/courses/`, `/groups/`, `/payments/`, `/attendance/`, `/dashboard/`, `/exams/`.  
+Management pages require `user.is_staff`. All app URLs are included at root under `''` or their prefix.
 
 ## Key settings
 - `DEBUG = True`, `ALLOWED_HOSTS = ['*']`

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="management-section">
+  <h1>Ödənişlər</h1>
+  <a href="{% url 'payment_add' %}" class="btn">Yeni Ödəniş</a>
+  <table class="management-table">
+    <tr><th>Şagird</th><th>Qrup</th><th>Məbləğ</th><th>Metod</th><th>Tarix</th></tr>
+    {% for p in payments %}
+    <tr>
+      <td>{{ p.student }}</td>
+      <td>{{ p.group.name|default:"-" }}</td>
+      <td>{{ p.amount }} AZN</td>
+      <td>{{ p.get_payment_method_display }}</td>
+      <td>{{ p.payment_date|date:"d.m.Y H:i" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Ödəniş yoxdur.</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{% static '../static/js/main.js' %}"></script>
+{% endblock %}

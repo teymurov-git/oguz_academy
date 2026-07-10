@@ -44,9 +44,24 @@
           </div>
         </li>
         <li><a href="{% url 'events' %}">Tədbirlərimiz</a></li>
+        <li><a href="{% url 'exam_list' %}">Sınaqlar</a></li>
         <li><a href="{% url 'contact' %}">Əlaqə</a></li>
         {% if user.is_authenticated %}
         <li><a href="{% url 'profile' %}">Profil</a></li>
+        {% if user.is_staff %}
+        <li class="dropdown">
+          <a href="#" id="manageMenu">İdarə</a>
+          <div class="dropdown-content">
+            <a href="{% url 'dashboard' %}">Panel</a>
+            <a href="{% url 'student_list' %}">Şagirdlər</a>
+            <a href="{% url 'teacher_list' %}">Müəllimlər</a>
+            <a href="{% url 'course_list' %}">Kurslar</a>
+            <a href="{% url 'group_list' %}">Qruplar</a>
+            <a href="{% url 'payment_list' %}">Ödənişlər</a>
+            <a href="{% url 'attendance_list' %}">Davamiyyət</a>
+          </div>
+        </li>
+        {% endif %}
         {% else %}
         <li><a href="{% url 'login' %}">Profil</a></li>
         {% endif %}

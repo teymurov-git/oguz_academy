@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="management-section">
+  <h1>Müəllimlər</h1>
+  <a href="{% url 'teacher_add' %}" class="btn">Yeni Müəllim</a>
+  <table class="management-table">
+    <tr><th>Ad</th><th>Email</th><th>İxtisas</th><th>Telefon</th><th>Status</th><th></th></tr>
+    {% for t in teachers %}
+    <tr>
+      <td>{{ t.user.get_full_name }}</td>
+      <td>{{ t.user.email }}</td>
+      <td>{{ t.specialization }}</td>
+      <td>{{ t.phone }}</td>
+      <td>{% if t.is_active %}Aktiv{% else %}Deaktiv{% endif %}</td>
+      <td><a href="{% url 'teacher_edit' t.pk %}">Düzəliş</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">Müəllim yoxdur.</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{% static '../static/js/main.js' %}"></script>
+{% endblock %}

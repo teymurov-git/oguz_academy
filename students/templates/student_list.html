@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="management-section">
+  <h1>Şagirdlər</h1>
+  <a href="{% url 'student_add' %}" class="btn">Yeni Şagird</a>
+  <table class="management-table">
+    <tr><th>Ad</th><th>Email</th><th>Telefon</th><th>Qeydiyyat</th><th>Status</th><th></th></tr>
+    {% for s in students %}
+    <tr>
+      <td>{{ s.user.get_full_name }}</td>
+      <td>{{ s.user.email }}</td>
+      <td>{{ s.phone }}</td>
+      <td>{{ s.enrollment_date|date:"d.m.Y" }}</td>
+      <td>{% if s.is_active %}Aktiv{% else %}Deaktiv{% endif %}</td>
+      <td><a href="{% url 'student_edit' s.pk %}">Düzəliş</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">Şagird yoxdur.</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{% static '../static/js/main.js' %}"></script>
+{% endblock %}

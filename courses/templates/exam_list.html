@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="exam-list-section">
+  <h1>Sınaq İmtahanları</h1>
+  {% if exams %}
+    <div class="exam-cards">
+      {% for exam in exams %}
+        <div class="exam-card">
+          <h2>{{ exam.title }}</h2>
+          <p>{{ exam.description|truncatewords:30 }}</p>
+          <p><strong>Tarix:</strong> {{ exam.date|date:"d.m.Y H:i" }}</p>
+          {% if exam.registration_deadline %}
+            <p><strong>Son müraciət:</strong> {{ exam.registration_deadline|date:"d.m.Y H:i" }}</p>
+          {% endif %}
+          <a href="{% url 'exam_detail' exam.slug %}" class="exam-btn">Ətraflı & Qeydiyyat</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Hazırda aktiv sınaq imtahanı yoxdur.</p>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{% static '../static/js/main.js' %}"></script>
+{% endblock %}

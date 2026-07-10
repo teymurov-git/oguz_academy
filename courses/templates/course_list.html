@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="management-section">
+  <h1>Kurslar</h1>
+  <a href="{% url 'course_add' %}" class="btn">Yeni Kurs</a>
+  <table class="management-table">
+    <tr><th>Ad</th><th>Qiymət</th><th>Müddət (həftə)</th><th>Status</th><th></th></tr>
+    {% for c in courses %}
+    <tr>
+      <td>{{ c.name }}</td>
+      <td>{{ c.price }} AZN</td>
+      <td>{{ c.duration_weeks }}</td>
+      <td>{% if c.is_active %}Aktiv{% else %}Deaktiv{% endif %}</td>
+      <td><a href="{% url 'course_edit' c.pk %}">Düzəliş</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Kurs yoxdur.</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{% static '../static/js/main.js' %}"></script>
+{% endblock %}

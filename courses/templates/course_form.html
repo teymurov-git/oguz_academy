@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="management-section">
+  <h1>{% if form.instance.pk %}Kursu Düzəliş Et{% else %}Yeni Kurs{% endif %}</h1>
+  <form method="post" class="management-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Yadda saxla</button>
+    <a href="{% url 'course_list' %}">Geri</a>
+  </form>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{% static '../static/js/main.js' %}"></script>
+{% endblock %}

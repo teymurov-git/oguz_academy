@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="management-section">
+  <h1>Davamiyyət</h1>
+  <a href="{% url 'attendance_add' %}" class="btn">Yeni Qeyd</a>
+  <table class="management-table">
+    <tr><th>Şagird</th><th>Qrup</th><th>Tarix</th><th>Status</th><th>Qeyd</th></tr>
+    {% for a in attendances %}
+    <tr>
+      <td>{{ a.student }}</td>
+      <td>{{ a.group.name }}</td>
+      <td>{{ a.date|date:"d.m.Y" }}</td>
+      <td>{{ a.get_status_display }}</td>
+      <td>{{ a.note }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Davamiyyət qeydi yoxdur.</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{% static '../static/js/main.js' %}"></script>
+{% endblock %}
