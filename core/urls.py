@@ -1,11 +1,10 @@
-from django.contrib import admin
 from django.urls import path
-from core.views import home, ContactView, search, about, events
+from core.views import HomeView, AboutView, EventsView, SearchView, ContactView
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('contact/', ContactView.as_view(), name = 'contact'),
-    path('search', search, name='search'),
-    path('about', about, name='about'),
-    path('events', events, name='events')
+    path('', HomeView.as_view(), name='home'),
+    path('about', AboutView.as_view(), name='about'),
+    path('events', EventsView.as_view(), name='events'),
+    path('search', SearchView.as_view(), name='search'),
+    path('contact/', ContactView.as_view(), name='contact'),
 ]

@@ -1,27 +1,33 @@
-from django.shortcuts import render
+from django.views.generic import TemplateView
 
-# Create your views here.
 
-def abiturient(request):
-    return render(request, 'abiturient.html')
+class AbiturientView(TemplateView):
+    template_name = 'abiturient.html'
 
-def django(request):
-    return render(request, 'django.html')
 
-def informatics(request):
-    return render(request, 'informatics.html')
+class DjangoView(TemplateView):
+    template_name = 'django.html'
 
-def language(request):
-    return render(request, 'language.html')
 
-def lyceum(request):
-    return render(request, 'lyceum.html')
+class InformaticsView(TemplateView):
+    template_name = 'informatics.html'
 
-def middleschool(request):
-    return render(request, 'middleschool.html')
 
-def miq(request):
-    return render(request, 'miq.html')
+class LanguageView(TemplateView):
+    template_name = 'language.html'
 
-def python(request):
-    return render(request, 'python.html')
+
+class LyceumView(TemplateView):
+    template_name = 'lyceum.html'
+
+
+class MiddleSchoolView(TemplateView):
+    template_name = 'middle-school.html'
+
+
+class MiqView(TemplateView):
+    template_name = 'miq.html'
+
+
+class PythonView(TemplateView):
+    template_name = 'python.html'

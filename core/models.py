@@ -11,18 +11,17 @@ class AbstractModel(models.Model):
         abstract = True
 
 class Contact(AbstractModel):
-    first_name = models.CharField('firstname',max_length=100)
-    last_name = models.CharField('lastname',max_length=100)
-    email = models.EmailField('email',unique=False)
-    phone = models.CharField('phone',max_length=15, blank=True, null=True)
-    message = models.TextField('message', unique=True)
+    first_name = models.CharField('first name', max_length=100)
+    last_name = models.CharField('last name', max_length=100)
+    email = models.EmailField('email')
+    phone = models.CharField('phone', max_length=100, blank=True, null=True)
+    message = models.TextField('message')
     def __str__(self):
-        return self.first_name + ' ' + self.last_name
+        return f"{self.first_name} {self.last_name}"
     
 class Subscriber(AbstractModel):
     
     email = models.EmailField('email', max_length=200)
 
     def __str__(self):
-        return self.email
         return self.email

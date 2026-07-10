@@ -1,14 +1,16 @@
-from django.contrib import admin
 from django.urls import path
-from courses.views import abiturient, django, informatics, language, lyceum, middleschool, miq, python
+from courses.views import (
+    AbiturientView, DjangoView, InformaticsView, LanguageView,
+    LyceumView, MiddleSchoolView, MiqView, PythonView,
+)
 
 urlpatterns = [
-    path('abiturient/', abiturient, name='abiturient'),
-    path('django/', django, name='django'),
-    path('informatics/', informatics, name='informatics'),
-    path('language/', language, name='language'),
-    path('lyceum/', lyceum, name='lyceum'),
-    path('middleschool/', middleschool, name='middleschool'),
-    path('miq/', miq, name='miq'),
-    path('python/', python, name='python'),
+    path('abiturient/', AbiturientView.as_view(), name='abiturient'),
+    path('django/', DjangoView.as_view(), name='django'),
+    path('informatics/', InformaticsView.as_view(), name='informatics'),
+    path('language/', LanguageView.as_view(), name='language'),
+    path('lyceum/', LyceumView.as_view(), name='lyceum'),
+    path('middleschool/', MiddleSchoolView.as_view(), name='middleschool'),
+    path('miq/', MiqView.as_view(), name='miq'),
+    path('python/', PythonView.as_view(), name='python'),
 ]
