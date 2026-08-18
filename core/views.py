@@ -4,7 +4,12 @@ from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import TemplateView, CreateView
 
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+
 from core.forms import ContactForm
+from core.models import Contact
+from core.serializers import ContactSerializer
 from students.models import Student
 from teachers.models import Teacher
 from courses.models import Course, Group
@@ -43,6 +48,18 @@ class ContactView(CreateView):
         return super().form_valid(form)
 
 
+class ContactAPIView(generics.CreateAPIView):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'success': True, 'message': 'Message sent successfully!'}, status=201)
+
+
 class DashboardView(StaffRequiredMixin, TemplateView):
     template_name = 'dashboard.html'
 
@@ -54,5 +71,5 @@ class DashboardView(StaffRequiredMixin, TemplateView):
         context['group_count'] = Group.objects.count()
         context['payment_count'] = Payment.objects.count()
         context['recent_payments'] = Payment.objects.select_related('student__user').order_by('-payment_date')[:10]
-        context['today_attendance'] = Attendance.objects.filter(date=timezone.now().date()).count()
+        context['today_attendance'] = Attendance.objects.filter(lesson_date=timezone.now().date()).count()
         return context

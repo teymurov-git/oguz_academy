@@ -2,28 +2,79 @@
 {% load static %}
 
 {% block content %}
-    <section class="account-section">
-      <h1>Daxil ol</h1>
-      <div class="form-container">
-        <div class="form-box">
-          <form method="post" action="{% url 'login' %}">
-            {% csrf_token %}
-            <label>E-Poçt ünvanı *</label>
-            {{ form.username }}
-            {{ form.username.errors }}
-
-            <label>Şifrə *</label>
-            {{ form.password }}
-            {{ form.password.errors }}
-
-            <div class="form-actions">
-              <a href="{% url 'register' %}">Hesabınız yoxdur?</a>
-              <button type="submit">Daxil ol</button>
-            </div>
-          </form>
+<section class="cabinet-page">
+  <div class="cabinet-left">
+    <div class="cabinet-left-content">
+      <a href="{% url 'home' %}">
+        <img src="{% static 'images/image.png' %}" alt="Oğuz Logo" class="cabinet-logo" />
+      </a>
+      <h1>Oğuz Tədris Mərkəzi</h1>
+      <p class="cabinet-tagline">Peşəkar tədris, gələcəyin açarıdır.</p>
+      <div class="cabinet-features">
+        <div class="cabinet-feature">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <div>
+            <h3>Keyfiyyətli Təhsil</h3>
+            <p>Təcrübəli müəllimlər və müasir proqramlar</p>
+          </div>
+        </div>
+        <div class="cabinet-feature">
+          <i class="fa-solid fa-laptop-code"></i>
+          <div>
+            <h3>Praktiki Bilik</h3>
+            <p>Real layihələr və təcrübə imkanları</p>
+          </div>
+        </div>
+        <div class="cabinet-feature">
+          <i class="fa-solid fa-certificate"></i>
+          <div>
+            <h3>Sertifikat</h3>
+            <p>Tədrisi bitirənlərə rəsmi sertifikat</p>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
+  <div class="cabinet-right">
+    <div class="cabinet-form-wrapper">
+      <div class="cabinet-form-header">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <h2>Şəxsi Kabinet</h2>
+        <p>Hesabınıza daxil olun</p>
+      </div>
+      {% if messages %}
+      <div class="cabinet-messages">
+        {% for message in messages %}
+        <div class="cabinet-alert">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <form method="post" action="{% url 'login' %}" class="cabinet-form">
+        {% csrf_token %}
+        <div class="cabinet-field">
+          <label for="id_username">
+            <i class="fa-solid fa-envelope"></i> E-Poçt
+          </label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+        <div class="cabinet-field">
+          <label for="id_password">
+            <i class="fa-solid fa-lock"></i> Şifrə
+          </label>
+          {{ form.password }}
+          {{ form.password.errors }}
+        </div>
+        <button type="submit" class="cabinet-submit">
+          <i class="fa-solid fa-right-to-bracket"></i> Daxil Ol
+        </button>
+      </form>
+      <div class="cabinet-footer-links">
+        <p>Hesabınız yoxdur? <a href="{% url 'register' %}">Qeydiyyatdan keçin</a></p>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
 
 {% block js %}

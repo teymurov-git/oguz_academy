@@ -1,0 +1,201 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block title %}Müəllim Paneli | Oğuz Tədris Mərkəzi{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block otm_content %}
+    {# Welcome #}
+    <div class="otm-welcome">
+        <div class="otm-welcome-content">
+            <h1>Salam, {{ teacher.user.get_full_name|default:teacher.user.email }}!</h1>
+            <p>Sizin {{ stats.my_groups }} aktiv qrupunuz və {{ stats.my_students }} tələbəniz var. Davamiyyət göstəriciniz <strong>{{ stats.attendance_rate }}%</strong>.</p>
+            <div class="otm-welcome-stats">
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ stats.my_groups }}</div>
+                    <div class="ws-label">Aktiv Qrup</div>
+                </div>
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ stats.my_students }}</div>
+                    <div class="ws-label">Tələbə</div>
+                </div>
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ stats.attendance_rate }}%</div>
+                    <div class="ws-label">Davamiyyət</div>
+                </div>
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ stats.lessons_this_month }}</div>
+                    <div class="ws-label">Dərs (Bu Ay)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Stat Cards #}
+    <div class="otm-stats">
+        <div class="otm-stat-card blue">
+            <div class="otm-stat-top">
+                <div class="otm-stat-icon blue"><i data-lucide="layers"></i></div>
+            </div>
+            <div class="otm-stat-value">{{ stats.my_groups }}</div>
+            <div class="otm-stat-label">Mənim Qruplarım</div>
+        </div>
+        <div class="otm-stat-card emerald">
+            <div class="otm-stat-top">
+                <div class="otm-stat-icon emerald"><i data-lucide="users"></i></div>
+            </div>
+            <div class="otm-stat-value">{{ stats.my_students }}</div>
+            <div class="otm-stat-label">Tələbələr</div>
+        </div>
+        <div class="otm-stat-card indigo">
+            <div class="otm-stat-top">
+                <div class="otm-stat-icon indigo"><i data-lucide="calendar-check"></i></div>
+            </div>
+            <div class="otm-stat-value">{{ stats.attendance_rate }}%</div>
+            <div class="otm-stat-label">Davamiyyət</div>
+        </div>
+        <div class="otm-stat-card emerald">
+            <div class="otm-stat-top">
+                <div class="otm-stat-icon green"><i data-lucide="banknote"></i></div>
+            </div>
+            <div class="otm-stat-value">{{ stats.monthly_income|floatformat:0 }} ₼</div>
+            <div class="otm-stat-label">Bu Ay Gəlir</div>
+        </div>
+    </div>
+
+    {# Charts #}
+    <div class="otm-grid-2">
+        <div class="otm-card">
+            <div class="otm-card-header">
+                <div>
+                    <h3>Aylıq Gəlir</h3>
+                    <small>Son 6 ayın gəlir dinamikası</small>
+                </div>
+            </div>
+            <div class="otm-card-body">
+                <div class="otm-chart-wrap"><canvas id="otmTeacherIncomeChart"></canvas></div>
+            </div>
+        </div>
+        <div class="otm-card">
+            <div class="otm-card-header">
+                <div>
+                    <h3>Davamiyyət Trendi</h3>
+                    <small>Aylıq davamiyyət faizi</small>
+                </div>
+            </div>
+            <div class="otm-card-body">
+                <div class="otm-chart-wrap"><canvas id="otmTeacherAttChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    {# Groups + Attendance #}
+    <div class="otm-grid-equal">
+        <div class="otm-card">
+            <div class="otm-card-header">
+                <h3>Mənim Qruplarım</h3>
+            </div>
+            <div class="otm-card-body">
+                <div class="otm-group-list">
+                    {% for g in my_groups %}
+                    <div class="otm-group-card">
+                        <div class="gc-name">{{ g.name }}</div>
+                        <div class="gc-meta">{{ g.course.name }}</div>
+                        <div class="gc-bar"><div class="gc-bar-fill" style="width:80%;background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div></div>
+                        {% if g.schedule_text %}
+                        <div class="gc-schedule">{{ g.schedule_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="otm-empty"><p>Qrup yoxdur</p></div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="otm-card">
+            <div class="otm-card-header">
+                <h3>Son Davamiyyətlər</h3>
+            </div>
+            <div class="otm-card-body no-pad">
+                <table class="otm-table">
+                    <thead>
+                        <tr><th>Tələbə</th><th>Qrup</th><th>Tarix</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for a in recent_attendance %}
+                        <tr>
+                            <td class="fw-600">{{ a.student.user.get_full_name }}</td>
+                            <td>{{ a.group.name }}</td>
+                            <td>{{ a.lesson_date|date:"d.m.Y" }}</td>
+                            <td><span class="otm-badge {% if a.status == 'present' %}green{% elif a.status == 'late' %}amber{% else %}red{% endif %}"><span class="badge-dot"></span>{{ a.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="otm-empty-cell">Davamiyyət yoxdur</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# Payments #}
+    {% if recent_payments %}
+    <div class="otm-card otm-card-mb">
+        <div class="otm-card-header">
+            <h3>Son Ödənişlər (Tələbələrim)</h3>
+        </div>
+        <div class="otm-card-body no-pad">
+            <table class="otm-table">
+                <thead>
+                    <tr><th>Tələbə</th><th>Məbləğ</th><th>Tarix</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in recent_payments %}
+                    <tr>
+                        <td class="fw-600">{{ p.student.user.get_full_name }}</td>
+                        <td class="fw-600 otm-color-green">{{ p.paid_amount|floatformat:2 }} ₼</td>
+                        <td>{{ p.payment_date|date:"d.m.Y" }}</td>
+                        <td><span class="otm-badge {% if p.status == 'paid' %}green{% elif p.status == 'pending' %}amber{% else %}red{% endif %}"><span class="badge-dot"></span>{{ p.get_status_display }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+    const months={{ chart_data.months|safe }};
+    const incomeData={{ chart_data.income|safe }};
+    const attData={{ chart_data.attendance|safe }};
+
+    const cs=getComputedStyle(document.documentElement);
+    new Chart(document.getElementById('otmTeacherIncomeChart'),{
+        type:'line',
+        data:{labels:months,datasets:[{
+            label:'Gəlir (₼)',data:incomeData,
+            borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',
+            fill:true,tension:.4,pointRadius:4,pointHoverRadius:7,
+            pointBackgroundColor:'#10b981',pointBorderColor:cs.getPropertyValue('--border'),pointBorderWidth:2,borderWidth:2.5
+        }]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:cs.getPropertyValue('--chart-tooltip-bg'),titleColor:cs.getPropertyValue('--chart-tooltip-text'),bodyColor:cs.getPropertyValue('--text-secondary'),padding:12,cornerRadius:10,displayColors:false}},scales:{x:{grid:{display:false},ticks:{color:cs.getPropertyValue('--text-muted'),font:{size:11}}},y:{grid:{color:cs.getPropertyValue('--chart-grid')},ticks:{color:cs.getPropertyValue('--text-muted'),font:{size:11},callback:function(v){return v.toLocaleString('az-AZ')+' ₼'}}}}}
+    });
+
+    new Chart(document.getElementById('otmTeacherAttChart'),{
+        type:'bar',
+        data:{labels:months,datasets:[{
+            label:'Davamiyyət %',data:attData,
+            backgroundColor:'rgba(99,102,241,0.6)',borderRadius:6,borderSkipped:false
+        }]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:cs.getPropertyValue('--chart-tooltip-bg'),titleColor:cs.getPropertyValue('--chart-tooltip-text'),bodyColor:cs.getPropertyValue('--text-secondary'),padding:12,cornerRadius:10,displayColors:false}},scales:{x:{grid:{display:false},ticks:{color:cs.getPropertyValue('--text-muted'),font:{size:11}}},y:{grid:{color:cs.getPropertyValue('--chart-grid')},ticks:{color:cs.getPropertyValue('--text-muted'),font:{size:11},callback:function(v){return v+'%'}},max:100}}}
+    });
+});
+</script>
+{% endblock %}

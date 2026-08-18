@@ -1,0 +1,272 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% if title %}{{ title }} | {% endif %}Oğuz Tədris Mərkəzi{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+(function(){var t=localStorage.getItem('otm-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches)document.documentElement.setAttribute('data-theme','light')})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/admin-theme.css' %}">
+<script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+<style>
+    #header, #nav-global, #nav-sidebar, #footer, #content-header, #branding,
+    #user-options, #user-tools, #user-message, .messagelist, #content h1,
+    .breadcrumbs, .view-title { display: none !important; }
+    #container { all: unset !important; display: block !important; }
+    #content { all: unset !important; display: block !important; }
+    #content-related { display: none !important; }
+    body { background: var(--bg-primary) !important; margin: 0 !important; padding: 0 !important; }
+    body::before, body::after { display: none !important; content: none !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Sidebar Overlay (mobile) -->
+<div class="otm-sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<aside class="otm-sidebar" id="sidebar">
+    <div class="otm-sidebar-header">
+        <a href="/admin/dashboard/" class="otm-sidebar-brand">
+            <img src="{% static 'images/logo.png' %}" alt="Oğuz Tədris Mərkəzi" class="otm-sidebar-logo-img">
+            <span class="otm-sidebar-brand-text"><span class="otm-text-blue">Oğuz</span> <span class="otm-text-blue">Tədris Mərkəzi</span></span>
+        </a>
+    </div>
+
+    <nav class="otm-sidebar-nav">
+        {# ── Dashboard — hər kəsə ── #}
+        {% if is_teacher_role %}
+        <a href="{% url 'teacher_dashboard' %}" class="otm-nav-item {% if request.path == '/admin/teacher-dashboard/' %}active{% endif %}">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Panelim</span>
+        </a>
+        {% elif is_student_role %}
+        <a href="{% url 'student_dashboard' %}" class="otm-nav-item {% if request.path == '/admin/student-dashboard/' %}active{% endif %}">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Panelim</span>
+        </a>
+        {% else %}
+        <a href="{% url 'admin_dashboard' %}" class="otm-nav-item {% if request.path == '/admin/dashboard/' %}active{% endif %}">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Panel</span>
+        </a>
+        {% endif %}
+
+        {# ── Əsas Menyu ── #}
+        {% if can_see_users or can_see_students or can_see_teachers or can_see_courses or can_see_groups or can_see_payments %}
+        <div class="otm-nav-divider"></div>
+        <div class="otm-nav-section">Əsas Menyu</div>
+        {% endif %}
+
+        {% if can_see_users %}
+        <a href="/admin/account/user/" class="otm-nav-item {% if '/account/user' in request.path %}active{% endif %}">
+            <i data-lucide="users"></i>
+            <span>İstifadəçilər</span>
+        </a>
+        {% endif %}
+
+        {% if can_see_students %}
+        <a href="/admin/students/student/" class="otm-nav-item {% if '/students/student' in request.path %}active{% endif %}">
+            <i data-lucide="graduation-cap"></i>
+            <span>Tələbələr</span>
+        </a>
+        {% endif %}
+
+        {% if can_see_teachers %}
+        <a href="/admin/teachers/teacher/" class="otm-nav-item {% if '/teachers/teacher' in request.path %}active{% endif %}">
+            <i data-lucide="briefcase"></i>
+            <span>Müəllimlər</span>
+        </a>
+        {% endif %}
+
+        {% if can_see_courses %}
+        <a href="/admin/courses/course/" class="otm-nav-item {% if '/courses/course' in request.path %}active{% endif %}">
+            <i data-lucide="book-open"></i>
+            <span>Fənlər</span>
+        </a>
+        {% endif %}
+
+        {% if can_see_groups %}
+        <a href="/admin/courses/group/" class="otm-nav-item {% if '/courses/group' in request.path %}active{% endif %}">
+            <i data-lucide="building-2"></i>
+            <span>Qruplar</span>
+        </a>
+        {% endif %}
+
+        <a href="/admin/grading/" class="otm-nav-item {% if '/grading' in request.path %}active{% endif %}">
+            <i data-lucide="clipboard-check"></i>
+            <span>Qiymətləndirmə</span>
+        </a>
+
+        {% if can_see_exams %}
+        <a href="{% url 'dim_exam_list' %}" class="otm-nav-item {% if '/exams' in request.path or '/exam_system' in request.path %}active{% endif %}">
+            <i data-lucide="file-text"></i>
+            <span>İmtahanlar</span>
+        </a>
+        {% endif %}
+
+        {% if can_see_payments %}
+        <a href="{% url 'payments_annual' %}" class="otm-nav-item {% if request.path == '/admin/payments/' %}active{% endif %}">
+            <i data-lucide="credit-card"></i>
+            <span>Ödənişlər</span>
+        </a>
+        {% endif %}
+
+        {# ── Əməliyyatlar ── #}
+        {% if show_section_operations %}
+        <div class="otm-nav-divider"></div>
+        <div class="otm-nav-section">Əməliyyatlar</div>
+
+        {% if can_see_attendance %}
+        <a href="/attendance/calendar/" class="otm-nav-item {% if '/attendance/calendar' in request.path %}active{% endif %}">
+            <i data-lucide="calendar-check"></i>
+            <span>Davamiyyət</span>
+        </a>
+        {% endif %}
+
+        {% if can_see_online_exams %}
+        <a href="/admin/online_exam/exam/" class="otm-nav-item {% if '/online_exam' in request.path %}active{% endif %}">
+            <i data-lucide="laptop"></i>
+            <span>Online İmtahanlar</span>
+        </a>
+        {% endif %}
+        {% endif %}
+
+
+    </nav>
+
+    <div class="otm-sidebar-footer">
+        <a href="/admin/logout/" class="otm-nav-item otm-nav-logout">
+            <i data-lucide="log-out"></i>
+            <span>Çıxış</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<div class="otm-main" id="main">
+    <header class="otm-navbar">
+        <div class="otm-navbar-left">
+            <button class="otm-sidebar-toggle" id="sidebarToggle">
+                <i data-lucide="menu"></i>
+            </button>
+            <h1 class="otm-page-title">{% block page_title %}{{ title }}{% endblock %}</h1>
+        </div>
+        <div class="otm-navbar-right">
+            {% if is_teacher_role %}
+            <a href="{% url 'teacher_dashboard' %}" class="otm-nav-icon" title="Dashboard">
+                <i data-lucide="layout-dashboard"></i>
+            </a>
+            {% elif is_student_role %}
+            <a href="{% url 'student_dashboard' %}" class="otm-nav-icon" title="Dashboard">
+                <i data-lucide="layout-dashboard"></i>
+            </a>
+            {% else %}
+            <a href="{% url 'admin_dashboard' %}" class="otm-nav-icon" title="Dashboard">
+                <i data-lucide="layout-dashboard"></i>
+            </a>
+            {% endif %}
+            <div class="otm-year-selector" style="position:relative;margin-right:8px">
+                <button onclick="document.getElementById('yearDropdown').classList.toggle('show')" style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
+                    <i data-lucide="calendar" style="width:14px;height:14px"></i>
+                    <span>{{ current_academic_year.name|default:"Tədris ili" }}</span>
+                    <i data-lucide="chevron-down" style="width:12px;height:12px"></i>
+                </button>
+                <div id="yearDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:1000;min-width:200px;max-height:300px;overflow-y:auto">
+                    <a href="{% url 'switch_academic_year' %}" style="display:block;padding:10px 14px;color:var(--text-secondary);font-size:13px;text-decoration:none;transition:background 0.15s{% if not current_academic_year %};background:var(--bg-hover);font-weight:700;color:var(--text-primary){% endif %}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='{% if not current_academic_year %}var(--bg-hover){% else %}transparent{% endif %}'">
+                        Hamısı
+                    </a>
+                    {% for year in academic_years %}
+                    <a href="{% url 'switch_academic_year' %}?year_id={{ year.pk }}" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;color:var(--text-secondary);font-size:13px;text-decoration:none;transition:background 0.15s{% if current_academic_year.pk == year.pk %};background:var(--bg-hover);font-weight:700;color:var(--text-primary){% endif %}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='{% if current_academic_year.pk == year.pk %}var(--bg-hover){% else %}transparent{% endif %}'">
+                        <span>{{ year.name }}</span>
+                        {% if year.is_current %}<span class="otm-badge green" style="font-size:10px;padding:2px 6px">Cari</span>{% endif %}
+                    </a>
+                    {% endfor %}
+                    {% if request.user.is_superuser %}
+                    <a href="/admin/courses/academicyear/add/" style="display:flex;align-items:center;gap:6px;padding:10px 14px;color:var(--text-muted);font-size:13px;text-decoration:none;border-top:1px solid var(--border);transition:background 0.15s" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                        <i data-lucide="plus" style="width:12px;height:12px"></i> Yeni tədris ili
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="/" class="otm-nav-icon" title="Sayt" target="_blank">
+                <i data-lucide="globe"></i>
+            </a>
+            <button class="otm-theme-toggle" id="themeToggle" title="Theme dəyiş">
+                <i data-lucide="sun" class="theme-icon-light"></i>
+                <i data-lucide="moon" class="theme-icon-dark"></i>
+            </button>
+            <div class="otm-user-menu">
+                <button class="otm-user-trigger" id="userMenuTrigger">
+                    <div class="otm-user-avatar">{{ request.user.first_name.0|default:request.user.email.0|upper }}</div>
+                    <span class="otm-user-name">{{ request.user.get_full_name|default:request.user.email }}</span>
+                    {% if user_role_names %}
+                    <span class="otm-badge {% if is_super or is_admin_role %}purple{% elif is_teacher_role %}blue{% elif is_student_role %}green{% else %}gray{% endif %}" style="margin-left:4px">
+                        {{ user_role_names.0 }}
+                    </span>
+                    {% endif %}
+                    <i data-lucide="chevron-down"></i>
+                </button>
+                <div class="otm-user-dropdown" id="userDropdown">
+                    {% if is_teacher_role %}
+                    <a href="{% url 'teacher_dashboard' %}" class="otm-dropdown-item">
+                        <i data-lucide="layout-dashboard"></i> Panelim
+                    </a>
+                    {% elif is_student_role %}
+                    <a href="{% url 'student_dashboard' %}" class="otm-dropdown-item">
+                        <i data-lucide="layout-dashboard"></i> Panelim
+                    </a>
+                    {% else %}
+                    <a href="{% url 'admin_dashboard' %}" class="otm-dropdown-item">
+                        <i data-lucide="layout-dashboard"></i> Dashboard
+                    </a>
+                    {% endif %}
+                    {% if request.user.is_superuser or can_see_users %}
+                    <a href="/admin/account/user/{{ request.user.id }}/change/" class="otm-dropdown-item">
+                        <i data-lucide="user"></i> Profil
+                    </a>
+                    {% endif %}
+                    <div class="otm-dropdown-divider"></div>
+                    <a href="/admin/logout/" class="otm-dropdown-item otm-dropdown-danger">
+                        <i data-lucide="log-out"></i> Çıxış
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="otm-content">
+        <div class="otm-content-wrapper">
+        {% block otm_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+<script src="{% static 'js/admin-theme.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', function(e) {
+        var dd = document.getElementById('yearDropdown');
+        if (dd && !e.target.closest('.otm-year-selector')) {
+            dd.classList.remove('show');
+        }
+    });
+    var dd = document.getElementById('yearDropdown');
+    if (dd) {
+        dd.style.display = 'block';
+        dd.style.opacity = '0';
+        dd.style.pointerEvents = 'none';
+        dd.style.transform = 'translateY(-4px)';
+        dd.style.transition = 'opacity 0.15s, transform 0.15s';
+    }
+});
+</script>
+<style>
+#yearDropdown.show { display: block !important; opacity: 1 !important; pointer-events: auto !important; transform: translateY(0) !important; }
+</style>
+{% block extra_js %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,195 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Davamiyyət | Oğuz Tədris Mərkəzi{% endblock %}
+
+{% block otm_content %}
+<div class="otm-card" style="margin-bottom:16px">
+    <div class="otm-card-body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <form method="get" style="display:flex;align-items:center;gap:12px;flex:1;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:8px">
+                <label style="font-weight:600;font-size:13px;white-space:nowrap">Qrup:</label>
+                <select name="group" onchange="this.form.submit()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-primary);color:var(--text-primary);font-size:13px;min-width:180px">
+                    <option value="">-- Qrup seçin --</option>
+                    {% for g in groups %}
+                    <option value="{{ g.id }}" {% if selected_group.id == g.id %}selected{% endif %}>{{ g.name }} · {{ g.course.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="hidden" name="month" value="{{ month }}">
+            <input type="hidden" name="year" value="{{ year }}">
+        </form>
+
+        <div style="display:flex;align-items:center;gap:8px">
+            <a href="?group={{ selected_group.id|default:'' }}&month={{ prev_month }}&year={{ prev_year }}" class="otm-qa-btn" style="padding:6px 10px;text-decoration:none">
+                <i data-lucide="chevron-left"></i>
+            </a>
+            <span style="font-weight:700;font-size:15px;min-width:120px;text-align:center">{{ month_name }} {{ year }}</span>
+            <a href="?group={{ selected_group.id|default:'' }}&month={{ next_month }}&year={{ next_year }}" class="otm-qa-btn" style="padding:6px 10px;text-decoration:none">
+                <i data-lucide="chevron-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if selected_group %}
+<div class="otm-card" style="margin-bottom:16px">
+    <div class="otm-card-body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px">
+        <span style="font-weight:700;font-size:14px">{{ selected_group.name }}</span>
+        <span style="color:var(--text-secondary)">·</span>
+        <span>Dərs günləri: <strong>{{ weekday_labels }}</strong></span>
+        <span style="color:var(--text-secondary)">·</span>
+        <span>Qeydlənib: <strong>{{ total_marked }}/{{ total_cells }}</strong></span>
+        <span style="color:var(--text-secondary)">·</span>
+        <span>İştirak faizi: <strong style="{% if att_pct >= 80 %}color:#10b981{% elif att_pct >= 50 %}color:#f59e0b{% else %}color:#ef4444{% endif %}">{{ att_pct }}%</strong></span>
+    </div>
+</div>
+
+{% if lesson_dates %}
+<div class="otm-card">
+    <div class="otm-card-body" style="overflow-x:auto;padding:0">
+        <table style="width:100%;border-collapse:collapse;min-width:{{ lesson_dates|length|add:1 }}00px">
+            <thead>
+                <tr style="border-bottom:2px solid var(--border)">
+                    <th style="padding:12px 16px;text-align:left;font-size:13px;font-weight:600;color:var(--text-secondary);position:sticky;left:0;background:var(--bg-primary);z-index:1;min-width:180px">Tələbə</th>
+                    {% for d in lesson_dates %}
+                    <th style="padding:12px 8px;text-align:center;font-size:12px;font-weight:600;color:var(--text-secondary);min-width:100px;white-space:nowrap">
+                        <div>{{ d|date:"d.m" }}</div>
+                        <div style="font-size:11px;color:var(--text-muted);font-weight:400">
+                            {% with wd=d.weekday %}{% if wd == 0 %}B.e{% elif wd == 1 %}Ç.a{% elif wd == 2 %}Çrş{% elif wd == 3 %}C.a{% elif wd == 4 %}Cüm{% elif wd == 5 %}Şnb{% elif wd == 6 %}Bzr{% endif %}{% endwith %}
+                        </div>
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr style="border-bottom:1px solid var(--border)">
+                    <td style="padding:10px 16px;font-size:13px;font-weight:500;position:sticky;left:0;background:var(--bg-primary);z-index:1;white-space:nowrap">{{ student.name }}</td>
+                    {% for d in lesson_dates %}
+                    <td style="padding:8px 4px;text-align:center" data-student="{{ student.id }}" data-date="{{ d|date:'Y-m-d' }}" data-group="{{ selected_group.id }}">
+                        <div style="display:inline-flex;gap:2px">
+                            <button onclick="markAttendance(this, 'present')" class="att-btn" title="İştirak etdi">✓</button>
+                            <button onclick="markAttendance(this, 'absent')" class="att-btn" title="İştirak etmədi">✕</button>
+                            <button onclick="markAttendance(this, 'late')" class="att-btn" title="Gecikdi">!</button>
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{{ lesson_dates|length|add:1 }}" style="padding:40px;text-align:center;color:var(--text-muted)">Bu qrupda aktiv tələbə yoxdur</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap">
+    <span><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;background:#10b981;color:#fff;font-size:11px">✓</span> İştirak etdi</span>
+    <span><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;background:#ef4444;color:#fff;font-size:11px">✕</span> İştirak etmədi</span>
+    <span><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;background:#f59e0b;color:#333;font-size:11px">!</span> Gecikdi</span>
+</div>
+{% else %}
+<div class="otm-card">
+    <div class="otm-card-body" style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+        <p style="font-size:16px;font-weight:600;margin-bottom:8px">Bu ay üçün dərs günü yoxdur</p>
+        <p style="font-size:13px">Seçilmiş qrupun dərs günləri bu ayda uyğun gəlmir.</p>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="otm-card">
+    <div class="otm-card-body" style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+        <p style="font-size:16px;font-weight:600;margin-bottom:8px">Qrup seçin</p>
+        <p style="font-size:13px">Davamiyyət cədvəlini görmək üçün yuxarıdan qrup seçin.</p>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.att-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.att-btn:hover { transform: scale(1.1); }
+.att-btn.active-present { background: #10b981; color: #fff; border-color: #10b981; }
+.att-btn.active-absent { background: #ef4444; color: #fff; border-color: #ef4444; }
+.att-btn.active-late { background: #f59e0b; color: #333; border-color: #f59e0b; }
+.att-btn:not(.active-present):not(.active-absent):not(.active-late):hover { border-color: var(--text-muted); }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var ATTENDANCE_MAP = {{ attendance_map_json|safe }};
+
+function markAttendance(btn, status) {
+    var td = btn.closest('td');
+    var studentId = td.dataset.student;
+    var lessonDate = td.dataset.date;
+    var groupId = td.dataset.group;
+
+    td.querySelectorAll('.att-btn').forEach(function(b) {
+        b.className = 'att-btn';
+    });
+
+    btn.classList.add('active-' + status);
+
+    fetch('/attendance/calendar/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            student_id: studentId,
+            lesson_date: lessonDate,
+            group_id: groupId,
+            status: status
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            var key = studentId + '_' + lessonDate;
+            ATTENDANCE_MAP[key] = status;
+        } else {
+            console.error('Save failed:', data.error);
+        }
+    })
+    .catch(function(err) { console.error('Error:', err); });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var cells = document.querySelectorAll('td[data-student]');
+    cells.forEach(function(td) {
+        var studentId = td.dataset.student;
+        var date = td.dataset.date;
+        var key = studentId + '_' + date;
+        var status = ATTENDANCE_MAP[key];
+        if (status) {
+            var btns = td.querySelectorAll('.att-btn');
+            if (status === 'present' && btns[0]) btns[0].classList.add('active-present');
+            else if (status === 'absent' && btns[1]) btns[1].classList.add('active-absent');
+            else if (status === 'late' && btns[2]) btns[2].classList.add('active-late');
+        }
+    });
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main>
+  <section class="attendance-mark">
+    <div class="container">
+      <h1>Davamiyyət qeydi</h1>
+
+      <form method="get" class="filter-form" id="filterForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="group">Qrup</label>
+            <select name="group" id="group" onchange="this.form.submit()">
+              <option value="">-- Qrup seçin --</option>
+              {% for g in groups %}
+              <option value="{{ g.id }}" {% if selected_group.id == g.id %}selected{% endif %}>
+                {{ g.name }} - {{ g.course.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="date">Tarix</label>
+            <input type="date" name="date" id="date" value="{{ lesson_date }}" onchange="this.form.submit()">
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button type="button" class="btn" onclick="window.location.href='{% url 'attendance_list' %}'">Keçmiş davamiyyətlər</button>
+          </div>
+        </div>
+      </form>
+
+      {% if selected_group %}
+      <div class="attendance-info">
+        <h2>{{ selected_group.name }} <small>({{ selected_group.course.name }})</small></h2>
+        <p><strong>Tarix:</strong> {{ lesson_date }}</p>
+        <p><strong>Tələbə sayı:</strong> {{ students|length }}</p>
+      </div>
+
+      <form method="post" id="attendanceForm">
+        {% csrf_token %}
+        <input type="hidden" name="group" value="{{ selected_group.id }}">
+        <input type="hidden" name="date" value="{{ lesson_date }}">
+
+        <div class="quick-actions">
+          <button type="button" class="btn btn-success" onclick="markAll('present')">Hamısı gəlib</button>
+          <button type="button" class="btn btn-danger" onclick="markAll('absent')">Hamısı gəlməyib</button>
+          <button type="button" class="btn btn-warning" onclick="markAll('late')">Hamısı gecikib</button>
+          <button type="button" class="btn btn-info" onclick="markAll('excused')">Hamısı üzrlü</button>
+        </div>
+
+        <table class="attendance-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tələbə</th>
+              <th>Status</th>
+              <th>Gecikmə (dəq)</th>
+              <th>Səbəb</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in students %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ student.full_name }}</td>
+              <td class="status-cell">
+                <div class="btn-group status-buttons" role="group">
+                  <button type="button" class="status-btn present {% if student.status == 'present' %}active{% endif %}" data-student="{{ student.id }}" onclick="setStatus('{{ student.id }}', 'present')">Gəlib</button>
+                  <button type="button" class="status-btn absent {% if student.status == 'absent' %}active{% endif %}" data-student="{{ student.id }}" onclick="setStatus('{{ student.id }}', 'absent')">Gəlməyib</button>
+                  <button type="button" class="status-btn late {% if student.status == 'late' %}active{% endif %}" data-student="{{ student.id }}" onclick="setStatus('{{ student.id }}', 'late')">Gecikib</button>
+                  <button type="button" class="status-btn excused {% if student.status == 'excused' %}active{% endif %}" data-student="{{ student.id }}" onclick="setStatus('{{ student.id }}', 'excused')">Üzrlü</button>
+                </div>
+                <input type="hidden" name="status_{{ student.id }}" id="status_{{ student.id }}" value="{{ student.status }}">
+              </td>
+              <td>
+                <input type="number" name="late_{{ student.id }}" value="{{ student.late_minutes }}" class="form-control late-input" min="0" style="width: 70px;">
+              </td>
+              <td>
+                <input type="text" name="reason_{{ student.id }}" value="{{ student.reason }}" class="form-control reason-input" placeholder="Səbəb...">
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5">Bu qrupda aktiv tələbə yoxdur.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Yadda saxla</button>
+        </div>
+      </form>
+      {% endif %}
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script>
+function setStatus(studentId, status) {
+  document.getElementById('status_' + studentId).value = status;
+  var btns = document.querySelectorAll('.status-btn[data-student="' + studentId + '"]');
+  btns.forEach(function(btn) {
+    btn.classList.remove('active');
+    if ((btn.classList.contains('present') && status === 'present') ||
+        (btn.classList.contains('absent') && status === 'absent') ||
+        (btn.classList.contains('late') && status === 'late') ||
+        (btn.classList.contains('excused') && status === 'excused')) {
+      btn.classList.add('active');
+    }
+  });
+}
+
+function markAll(status) {
+  var statusInputs = document.querySelectorAll('[id^="status_"]');
+  statusInputs.forEach(function(input) {
+    var sid = input.id.replace('status_', '');
+    setStatus(sid, status);
+  });
+}
+</script>
+{% endblock %}

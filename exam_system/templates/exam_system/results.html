@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+.results-page{max-width:900px;margin:0 auto;padding:60px 20px}
+.results-title{text-align:center;margin-bottom:40px}
+.results-title h1{font-size:32px;font-weight:800;color:#1a1a2e;margin-bottom:8px;font-family:'Times New Roman',Times,serif}
+.results-title p{font-size:15px;color:#666}
+.results-search{display:flex;gap:10px;max-width:500px;margin:0 auto 40px}
+.results-search input{flex:1;padding:14px 20px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;font-weight:600;letter-spacing:0.5px;transition:border-color 0.2s}
+.results-search input:focus{outline:none;border-color:#4f46e5}
+.results-search input::placeholder{color:#94a3b8;font-weight:400;letter-spacing:0}
+.results-search button{padding:14px 28px;background:#4f46e5;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.2s;white-space:nowrap}
+.results-search button:hover{background:#4338ca}
+.results-error{text-align:center;padding:20px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-weight:600;margin-bottom:20px}
+.results-welcome{text-align:center;padding:60px 20px;background:#f8fafc;border-radius:16px;border:2px dashed #e2e8f0;margin-bottom:20px}
+.results-welcome i{font-size:48px;color:#cbd5e1;margin-bottom:12px}
+.results-welcome p{font-size:15px;color:#64748b}
+.results-student-info{display:flex;align-items:center;gap:20px;padding:24px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:16px;color:#fff;margin-bottom:24px}
+.results-student-avatar{width:64px;height:64px;border-radius:16px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800}
+.results-student-info h2{margin:0;font-size:20px;font-weight:800}
+.results-student-info p{margin:4px 0 0;font-size:13px;opacity:0.8}
+.result-card{padding:20px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:12px;transition:box-shadow 0.2s}
+.result-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.result-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.result-card-top h3{margin:0;font-size:16px;font-weight:700;color:#1a1a2e}
+.result-card-nb{font-size:28px;font-weight:900;line-height:1}
+.result-card-nb.green{color:#059669}
+.result-card-nb.yellow{color:#d97706}
+.result-card-nb.red{color:#dc2626}
+.result-card-meta{display:flex;gap:16px;font-size:12px;color:#64748b;margin-bottom:14px}
+.result-card-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat-box{padding:10px;background:#f8fafc;border-radius:8px;text-align:center}
+.stat-box .val{font-size:18px;font-weight:800}
+.stat-box .lbl{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px}
+.stat-box .val.green{color:#059669}
+.stat-box .val.red{color:#dc2626}
+.stat-box .val.yellow{color:#d97706}
+.stat-box .val.gray{color:#94a3b8}
+.result-card-link{display:inline-block;margin-top:12px;padding:6px 14px;font-size:12px;font-weight:600;color:#4f46e5;text-decoration:none;border:1px solid #e0e7ff;border-radius:8px;transition:all 0.15s}
+.result-card-link:hover{background:#eef2ff;border-color:#c7d2fe}
+</style>
+
+<div class="results-page">
+    <div class="results-title">
+        <h1>Nəticələrim</h1>
+        <p>İş nömrənizi daxil edin və bütün imtahan nəticələrinizə baxın</p>
+    </div>
+
+    <form method="GET" action="" class="results-search">
+        <input type="text" name="sid" value="{{ student_id_query }}" placeholder="5 rəqəmli iş nömrənizi yazın (məs: 12345)" maxlength="20">
+        <button type="submit">Nəticələrə Bax</button>
+    </form>
+
+    {% if search_error %}
+    <div class="results-error">{{ search_error }}</div>
+    {% endif %}
+
+    {% if student %}
+    <div class="results-student-info">
+        <div class="results-student-avatar">{{ student.user.first_name.0|default:student.user.email.0|upper }}</div>
+        <div>
+            <h2>{{ student.user.get_full_name|default:student.user.email }}</h2>
+            <p>İş nömrəsi: {{ student.work_number|default:student.student_id }} &nbsp;|&nbsp; {{ results|length }} imtahan</p>
+        </div>
+    </div>
+
+    {% if yekun %}
+    <div style="padding:24px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:16px;color:#fff;margin-bottom:20px;text-align:center">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:0.8;margin-bottom:12px">Yekun Bal</div>
+        <div style="font-size:56px;font-weight:900;line-height:1">{{ yekun.yekun_bal|floatformat:1 }}<span style="font-size:20px;opacity:0.7">/{{ yekun.max_bal|floatformat:0 }}</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;max-width:480px;margin-left:auto;margin-right:auto">
+            <div style="padding:14px;background:rgba(255,255,255,0.15);border-radius:12px">
+                <div style="font-size:24px;font-weight:800">{{ yekun.buraxilis_bal|floatformat:1 }}</div>
+                <div style="font-size:11px;opacity:0.8">Buraxılış (300)</div>
+            </div>
+            <div style="padding:14px;background:rgba(255,255,255,0.15);border-radius:12px">
+                <div style="font-size:24px;font-weight:800">{{ yekun.blok_bal|floatformat:1 }}</div>
+                <div style="font-size:11px;opacity:0.8">Blok (400)</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if results %}
+    {% for r in results %}
+    {% with se=r.student_exam exam=r.exam %}
+    <div class="result-card">
+        <div class="result-card-top">
+            <div>
+                <h3>{{ exam.title }}</h3>
+                <div class="result-card-meta">
+                    <span><i class="fa-solid fa-calendar-days"></i> {{ exam.start_datetime|date:"d.m.Y"|default:"-" }}</span>
+                    <span><i class="fa-solid fa-book"></i> {% if exam.dim_type %}{{ exam.get_dim_type_display }} — {{ exam.get_exam_group_display }}{% else %}{{ exam.subject|default:exam.get_exam_type_display }}{% endif %}</span>
+                    <span><i class="fa-solid fa-circle-question"></i> {{ exam.total_questions }} sual</span>
+                    <span>
+                        {% if se.get_status_display == 'Bitirib' %}✓ Bitirilib{% elif se.get_status_display == 'Davam edir' %}⏳ Davam edir{% else %}{{ se.get_status_display }}{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div style="text-align:right">
+                <div class="result-card-nb {% if r.is_dim %}green{% elif r.nb_score >= 70 %}green{% elif r.nb_score >= 50 %}yellow{% else %}red{% endif %}">
+                    {{ r.nb_score|floatformat:1 }}<span style="font-size:13px;font-weight:700;color:#94a3b8">{% if r.is_dim %}/{{ r.dim_result.max_bal|floatformat:1 }}{% endif %}</span>
+                </div>
+                <div style="font-size:11px;color:#94a3b8;font-weight:600">{% if r.is_dim %}Ümumi bal{% else %}NB{% endif %}</div>
+            </div>
+        </div>
+        {% if r.is_dim %}
+        <div class="result-card-stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-bottom:12px">
+            {% for s in r.dim_result.per_subject %}
+            <div class="stat-box">
+                <div class="val" style="color:#4f46e5">{{ s.bal|floatformat:1 }}</div>
+                <div class="lbl">{{ s.name }}</div>
+                <div style="font-size:10px;color:#94a3b8">Dq {{ s.dq }} / Yq {{ s.yq }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="result-card-stats">
+            <div class="stat-box">
+                <div class="val green">{{ r.dq }}</div>
+                <div class="lbl">Doğru (Dq)</div>
+            </div>
+            <div class="stat-box">
+                <div class="val red">{{ r.yq }}</div>
+                <div class="lbl">Yanlış (Yq)</div>
+            </div>
+            <div class="stat-box">
+                <div class="val yellow">{{ r.da|floatformat:1 }}</div>
+                <div class="lbl">Açıq sual (Da)</div>
+            </div>
+            <div class="stat-box">
+                <div class="val gray">{{ r.empty }}</div>
+                <div class="lbl">Boş</div>
+            </div>
+        </div>
+
+        {% if r.cards %}
+        <div style="margin-top:14px;border-top:1px solid #eef2f7;padding-top:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <span style="font-size:12px;font-weight:800;color:#1a1a2e">Cavab kartı</span>
+                <button type="button" class="card-toggle" data-target="card-{{ forloop.counter }}" style="font-size:11px;font-weight:600;color:#4f46e5;background:#eef2ff;border:1px solid #e0e7ff;border-radius:8px;padding:4px 10px;cursor:pointer">Göstər</button>
+            </div>
+            <div id="card-{{ forloop.counter }}" style="display:none">
+                {% if r.subject_blocks %}
+                {% for block in r.subject_blocks %}
+                <div style="margin-bottom:14px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                        <span style="font-size:12px;font-weight:800;color:#4f46e5">{{ block.name }}</span>
+                        <span style="font-size:10px;color:#94a3b8">Dq {{ block.dq }} / Yq {{ block.yq }} | NB {{ block.nb|floatformat:1 }} → {{ block.bal|floatformat:1 }}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px">
+                        {% for c in block.cards %}
+                        <div title="Sual {{ c.number }}" style="height:34px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:800
+                            {% if c.status == 'correct' %}background:rgba(5,150,105,0.12);color:#059669
+                            {% elif c.status == 'wrong' %}background:rgba(220,38,38,0.12);color:#dc2626
+                            {% else %}background:#f1f5f9;color:#94a3b8{% endif %}">
+                            <span>{{ c.student_letter|default:"—" }}</span>
+                            <span style="font-size:8px;font-weight:600;opacity:0.8">düz: {{ c.correct_letter|default:"—" }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px">
+                    {% for c in r.cards %}
+                    <div title="Sual {{ c.number }} — {{ c.subject }}" style="height:34px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:800
+                        {% if c.status == 'correct' %}background:rgba(5,150,105,0.12);color:#059669
+                        {% elif c.status == 'wrong' %}background:rgba(220,38,38,0.12);color:#dc2626
+                        {% else %}background:#f1f5f9;color:#94a3b8{% endif %}">
+                        <span>{{ c.student_letter|default:"—" }}</span>
+                        <span style="font-size:8px;font-weight:600;opacity:0.8">düz: {{ c.correct_letter|default:"—" }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endwith %}
+    {% endfor %}
+    {% else %}
+    <div style="text-align:center;padding:40px;color:#94a3b8;font-size:14px">
+        Hələ heç bir imtahanda iştirak etməmisiniz.
+    </div>
+    {% endif %}
+
+    {% elif not search_error %}
+    <div class="results-welcome">
+        <i class="fa-solid fa-magnifying-glass-chart"></i>
+        <p>İş nömrənizi yuxarıdakı sahəyə yazın</p>
+    </div>
+    {% endif %}
+</div>
+<script>
+document.addEventListener('click', function(e){
+    if (e.target.classList.contains('card-toggle')) {
+        var t = e.target;
+        var panel = document.getElementById(t.dataset.target);
+        if (!panel) return;
+        var open = panel.style.display !== 'none';
+        panel.style.display = open ? 'none' : 'block';
+        t.textContent = open ? 'Göstər' : 'Gizlət';
+    }
+});
+</script>
+{% endblock %}

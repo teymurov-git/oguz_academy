@@ -1,0 +1,160 @@
+{% extends "admin/base_site.html" %}
+
+{% block page_title %}Nəticələr{% endblock %}
+
+{% block otm_content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+        <a href="{% url 'grading_exam_list' %}?exam_id={{ exam.pk }}" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;margin-bottom:4px">
+            <i data-lucide="arrow-left" style="width:14px;height:14px"></i> Qiymətləndirmə
+        </a>
+        <h1 style="margin:0;font-size:20px;font-weight:800">{{ exam.title }} — Nəticələr</h1>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+            {% if is_dim %}
+                {% if exam.dim_type == 'buraxilis' %}
+                    DİM Buraxılış: Tədris dili + Riyaziyyat + Xarici dil (hər fənn 0–100, cərimə yoxdur) &nbsp;|&nbsp; Maksimal: 300 bal
+                {% else %}
+                    DİM Blok: hər fənn 0–100 (NB = (Dq − ¼·Yq)×100/N) × çəki əmsalı &nbsp;|&nbsp; Maksimal: 400 bal &nbsp;|&nbsp; Yekun = Buraxılış + Blok (700)
+                {% endif %}
+            {% else %}
+                Formula: NB = (Dq − ¼·Yq + Da) × 100 / 33 &nbsp;|&nbsp; Ümumi sual: {{ total_questions }}
+            {% endif %}
+        </div>
+    </div>
+    <div style="display:flex;gap:8px">
+        <a href="{% url 'grading_exam_list' %}?exam_id={{ exam.pk }}" class="otm-qa-btn" style="text-decoration:none;padding:8px 16px">
+            <i data-lucide="edit-3" style="width:14px;height:14px"></i> Qiymətləndirmə
+        </a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px">
+    <div style="padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center">
+        <div style="font-size:28px;font-weight:800;color:var(--accent)">{{ results|length }}</div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase">İştirakçı</div>
+    </div>
+    <div style="padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center">
+        <div style="font-size:28px;font-weight:800;color:#34d399">{{ avg_score|floatformat:1 }}</div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Orta {{ exam.dim_type|yesno:"Bal,NB" }}</div>
+    </div>
+</div>
+
+<div class="otm-card" style="padding:0;overflow:hidden">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <h2 style="margin:0;font-size:16px;font-weight:700">Nəticə Cədvəli</h2>
+        <span style="font-size:12px;color:var(--text-muted)">
+            {% if is_dim %}{{ results|length }} iştirakçı, maks. {{ exam.max_score|floatformat:0 }} bal{% else %}NB = (Dq − ¼·Yq + Da) × 100 / 33{% endif %}
+        </span>
+    </div>
+
+    {% if results %}
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap">
+        <thead>
+            <tr>
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600;min-width:40px">#</th>
+                <th style="padding:12px 14px;text-align:left;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600">Tələbə</th>
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600">İş №</th>
+                {% if is_dim %}
+                    {% for name in dim_subject_names %}
+                    <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600">{{ name|truncatechars:10 }}</th>
+                    {% endfor %}
+                {% endif %}
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600;color:#34d399">Dq</th>
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600;color:#f87171">Yq</th>
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600">Boş</th>
+                {% if not is_dim %}
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600">Da</th>
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600">Toplam</th>
+                {% endif %}
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600;color:var(--accent)">{{ exam.dim_type|yesno:"ÜMUMİ BAL,NB" }}</th>
+                {% if show_yekun %}
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600">Buraxılış</th>
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600;color:#34d399">Yekun</th>
+                {% endif %}
+                <th style="padding:12px 14px;text-align:center;background:var(--table-header-bg);color:var(--text-secondary);font-weight:600">Əməliyyat</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in results %}
+            <tr style="border-bottom:1px solid var(--border);{% if forloop.counter <= 3 %}background:rgba(0,97,255,0.03){% endif %}">
+                <td style="padding:12px 14px;text-align:center">
+                    {% if forloop.counter == 1 %}
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:rgba(234,179,8,0.15);color:#fbbf24;font-weight:800;font-size:11px">1</span>
+                    {% elif forloop.counter == 2 %}
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:rgba(156,163,175,0.15);color:#9ca3af;font-weight:800;font-size:11px">2</span>
+                    {% elif forloop.counter == 3 %}
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:rgba(180,83,9,0.15);color:#d97706;font-weight:800;font-size:11px">3</span>
+                    {% else %}
+                    <span style="color:var(--text-muted)">{{ forloop.counter }}</span>
+                    {% endif %}
+                </td>
+                <td style="padding:12px 14px">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <div class="otm-user-avatar" style="width:28px;height:28px;font-size:10px">{{ r.student_name.0|upper }}</div>
+                        <span style="font-weight:600">{{ r.student_name }}</span>
+                    </div>
+                </td>
+                <td style="padding:12px 14px;text-align:center;color:var(--text-muted);font-family:monospace;font-size:12px">{{ r.work_number|default:"—" }}</td>
+                {% if is_dim %}
+                    {% for s in r.dim_result.per_subject %}
+                    <td style="padding:12px 14px;text-align:center;font-weight:700">{{ s.bal|floatformat:1 }}</td>
+                    {% endfor %}
+                {% endif %}
+                <td style="padding:12px 14px;text-align:center;font-weight:700;color:#34d399">{{ r.dq }}</td>
+                <td style="padding:12px 14px;text-align:center;font-weight:700;color:#f87171">{{ r.yq }}</td>
+                <td style="padding:12px 14px;text-align:center;color:var(--text-muted)">{{ r.empty }}</td>
+                {% if not is_dim %}
+                <td style="padding:12px 14px;text-align:center;font-weight:600">{{ r.da|floatformat:1 }}</td>
+                <td style="padding:12px 14px;text-align:center;font-weight:700">{{ r.total|floatformat:1 }}</td>
+                {% endif %}
+                <td style="padding:12px 14px;text-align:center">
+                    {% if is_dim %}
+                    <span style="display:inline-block;padding:4px 12px;border-radius:6px;font-weight:800;font-size:14px;background:rgba(167,139,250,0.15);color:#a78bfa">
+                        {{ r.nb_score|floatformat:1 }} <span style="font-size:10px;color:var(--text-muted)">/{{ r.dim_result.max_bal|floatformat:0 }}</span>
+                    </span>
+                    {% else %}
+                    <span style="display:inline-block;padding:4px 12px;border-radius:6px;font-weight:800;font-size:14px
+                        {% if r.nb_score >= 70 %}background:rgba(16,185,129,0.15);color:#34d399
+                        {% elif r.nb_score >= 50 %}background:rgba(245,158,11,0.15);color:#fbbf24
+                        {% else %}background:rgba(239,68,68,0.15);color:#f87171{% endif %}">
+                        {{ r.nb_score|floatformat:1 }}
+                    </span>
+                    {% endif %}
+                </td>
+                {% if show_yekun %}
+                <td style="padding:12px 14px;text-align:center;font-weight:700">
+                    {% if r.buraxilis_bal is not None %}
+                    {{ r.buraxilis_bal|floatformat:1 }} <span style="font-size:10px;color:var(--text-muted)">/300</span>
+                    {% else %}
+                    <span style="color:var(--text-muted)">—</span>
+                    {% endif %}
+                </td>
+                <td style="padding:12px 14px;text-align:center">
+                    {% if r.yekun_bal is not None %}
+                    <span style="display:inline-block;padding:4px 12px;border-radius:6px;font-weight:800;font-size:14px;background:rgba(16,185,129,0.15);color:#34d399">
+                        {{ r.yekun_bal|floatformat:1 }} <span style="font-size:10px;color:var(--text-muted)">/700</span>
+                    </span>
+                    {% else %}
+                    <span style="color:var(--text-muted)">—</span>
+                    {% endif %}
+                </td>
+                {% endif %}
+                <td style="padding:12px 14px;text-align:center">
+                    <a href="{% url 'grading_answer_card' student_exam_id=r.student_exam.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:5px 10px;font-size:11px">
+                        <i data-lucide="grid-3x3" style="width:12px;height:12px"></i> Kart
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <div style="padding:60px;text-align:center">
+        <div style="font-size:14px;color:var(--text-muted)">Bu imtahanda nəticə yoxdur.</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

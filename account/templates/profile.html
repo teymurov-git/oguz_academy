@@ -2,31 +2,101 @@
 {% load static %}
 
 {% block content %}
-    <section class="profile-section">
-      <div class="profile-card">
-        <div class="profile-avatar">
-              <img src="{% static '../static/images/avatar.png' %}" alt="şəkil" id="profileImg" width="315px" height="315px"/>
-        </div>
-        <h2 id="fullname">{{user.get_full_name}}</h2>
-        <p>
-          <strong><span style="color: rgb(8, 8, 101)">Email:</span></strong>
-          <span id="email">{{request.user.email}}</span>
-        </p>
+<section class="profile-page">
+  <div class="profile-page-container">
+    {% if messages %}
+    <div class="profile-messages">
+      {% for message in messages %}
+      <div class="profile-alert">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
-        <div class="password-wrapper">
-          <label
-            ><strong>
-              <span style="color: rgb(8, 8, 101)">Şifrə:</span>
-            </strong></label
-          >
-          <input type="text" id="password" value="{{request.user.password}}" readonly />
-        </div>
-
-        <a href="{% url 'home' %}" class="logout-btn">Ana Səhifə</a>
+    <div class="profile-top-card">
+      <div class="profile-avatar-section">
+        {% if request.user.photo %}
+        <img src="{{ request.user.photo.url }}" alt="Şəkil" class="profile-avatar-img" />
+        {% else %}
+        <img src="{% static 'images/avatar.png' %}" alt="Şəkil" class="profile-avatar-img" />
+        {% endif %}
+        <label for="id_photo" class="profile-avatar-edit">
+          <i class="fa-solid fa-camera"></i>
+        </label>
       </div>
-    </section>
-{% endblock %}
+      <div class="profile-user-info">
+        <h2>{{ user.get_full_name }}</h2>
+        <p class="profile-email">{{ request.user.email }}</p>
+        {% if request.user.phone %}
+        <p class="profile-phone"><i class="fa-solid fa-phone"></i> {{ request.user.phone }}</p>
+        {% endif %}
+        {% if request.user.bio %}
+        <p class="profile-bio-text">{{ request.user.bio }}</p>
+        {% endif %}
+      </div>
+    </div>
 
-{% block js %}
-    <script src="{% static '../static/js/main.js' %}"></script>
+    <div class="profile-cards-grid">
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <i class="fa-solid fa-user-pen"></i>
+          <h3>Profili Düzəliş Et</h3>
+        </div>
+        <form method="post" class="profile-form" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ profile_form.as_p }}
+          <button type="submit" name="edit_profile" class="profile-btn">Yadda Saxla</button>
+        </form>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <i class="fa-solid fa-lock"></i>
+          <h3>Şifrəni Dəyişdir</h3>
+        </div>
+        <form method="post" class="profile-form">
+          {% csrf_token %}
+          {% if password_form.non_field_errors %}
+          <div class="profile-form-errors">
+            {% for error in password_form.non_field_errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% for field in password_form %}
+          <div class="profile-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <span class="field-error">{{ field.errors.0 }}</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+          <button type="submit" name="change_password" class="profile-btn">Şifrəni Dəyişdir</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="profile-account-info">
+      <h3><i class="fa-solid fa-circle-info"></i> Hesab Məlumatları</h3>
+      <div class="profile-info-grid">
+        <div class="profile-info-item">
+          <span class="info-label">İstifadəçi adı</span>
+          <span class="info-value">{{ request.user.username }}</span>
+        </div>
+        <div class="profile-info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ request.user.email }}</span>
+        </div>
+        <div class="profile-info-item">
+          <span class="info-label">Qeydiyyat tarixi</span>
+          <span class="info-value">{{ request.user.date_joined|date:"d.m.Y" }}</span>
+        </div>
+        <div class="profile-info-item">
+          <span class="info-label">Son giriş</span>
+          <span class="info-value">{{ request.user.last_login|date:"d.m.Y H:i"|default:"-" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

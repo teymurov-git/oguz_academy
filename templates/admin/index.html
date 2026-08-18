@@ -1,0 +1,254 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | Oğuz Tədris Mərkəzi{% endblock %}
+
+{% block otm_content %}
+    {# ── Welcome ── #}
+    <div class="otm-welcome">
+        <div class="otm-welcome-content">
+            {% if is_super or is_admin_role %}
+            <h1>Xoş gəldiniz, {{ request.user.get_full_name|default:request.user.email }}!</h1>
+            <p>Oğuz Tədris Mərkəzinin idarəetmə panelinə xoş gəlmisiniz. Bu gün {{ user_count|default:"0" }} istifadəçi, {{ student_count|default:"0" }} tələbəniz var.</p>
+            {% elif is_teacher_role %}
+            <h1>Salam, {{ request.user.get_full_name|default:request.user.email }}!</h1>
+            <p>Müəllim panelinə xoş gəlmisiniz. Buradan qruplarınızı, tələbələrinizi və davamiyyətinizi idarə edə bilərsiniz.</p>
+            {% elif is_student_role %}
+            <h1>Salam, {{ request.user.get_full_name|default:request.user.email }}!</h1>
+            <p>Tələbə panelinə xoş gəlmisiniz. Buradan kurslarınızı, qruplarınızı və davamiyyətinizi izləyə bilərsiniz.</p>
+            {% else %}
+            <h1>Xoş gəldiniz!</h1>
+            <p>Oğuz Tədris Mərkəzinin idarəetmə panelinə xoş gəlmisiniz.</p>
+            {% endif %}
+            <div class="otm-welcome-stats">
+                {% if can_see_students %}
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ student_count|default:"0" }}</div>
+                    <div class="ws-label">Tələbə</div>
+                </div>
+                {% endif %}
+                {% if can_see_groups %}
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ group_count|default:"0" }}</div>
+                    <div class="ws-label">Qrup</div>
+                </div>
+                {% endif %}
+                {% if can_see_teachers %}
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ teacher_count|default:"0" }}</div>
+                    <div class="ws-label">Müəllim</div>
+                </div>
+                {% endif %}
+            </div>
+            {% if can_see_students %}
+            <div class="otm-quick-actions">
+                <a href="/admin/students/student/add/" class="otm-qa-btn">
+                    <i data-lucide="user-plus"></i> Tələbə Əlavə Et
+                </a>
+                {% if can_see_courses %}
+                <a href="/admin/courses/course/add/" class="otm-qa-btn">
+                    <i data-lucide="plus-circle"></i> Fən Əlavə Et
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ── Stats — Only for admin/superadmin ── #}
+    {% if is_super or is_admin_role %}
+    <div class="otm-dashboard-grid">
+        {% if can_see_users %}
+        <div class="otm-stat-card">
+            <div class="otm-stat-icon blue"><i data-lucide="users"></i></div>
+            <div class="otm-stat-info">
+                <h3>{{ user_count|default:"0" }}</h3>
+                <p>İstifadəçilər</p>
+            </div>
+        </div>
+        {% endif %}
+        {% if can_see_students %}
+        <div class="otm-stat-card">
+            <div class="otm-stat-icon green"><i data-lucide="graduation-cap"></i></div>
+            <div class="otm-stat-info">
+                <h3>{{ student_count|default:"0" }}</h3>
+                <p>Tələbələr</p>
+            </div>
+        </div>
+        {% endif %}
+        {% if can_see_teachers %}
+        <div class="otm-stat-card">
+            <div class="otm-stat-icon purple"><i data-lucide="briefcase"></i></div>
+            <div class="otm-stat-info">
+                <h3>{{ teacher_count|default:"0" }}</h3>
+                <p>Müəllimlər</p>
+            </div>
+        </div>
+        {% endif %}
+        {% if can_see_courses %}
+        <div class="otm-stat-card">
+            <div class="otm-stat-icon amber"><i data-lucide="book-open"></i></div>
+            <div class="otm-stat-info">
+                <h3>{{ course_count|default:"0" }}</h3>
+                <p>Fənlər</p>
+            </div>
+        </div>
+        {% endif %}
+        {% if can_see_groups %}
+        <div class="otm-stat-card">
+            <div class="otm-stat-icon cyan"><i data-lucide="building-2"></i></div>
+            <div class="otm-stat-info">
+                <h3>{{ group_count|default:"0" }}</h3>
+                <p>Qruplar</p>
+            </div>
+        </div>
+        {% endif %}
+        {% if can_see_payments %}
+        <div class="otm-stat-card">
+            <div class="otm-stat-icon red"><i data-lucide="credit-card"></i></div>
+            <div class="otm-stat-info">
+                <h3>{{ payment_count|default:"0" }}</h3>
+                <p>Ödənişlər</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {# ── Modullar — rollara görə ── #}
+    <div class="otm-mb-16">
+        <h2 class="otm-section-title">Modullar</h2>
+        <p class="otm-section-sub">İdarəetmə modullarına tez keçid</p>
+    </div>
+    <div class="otm-app-list">
+        {% if can_see_users %}
+        <a href="/admin/account/user/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon"><i data-lucide="users"></i></div>
+                <h3>İstifadəçilər</h3>
+            </div>
+            <p>Sistem istifadəçiləri, rollar və icazələr</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_students %}
+        <a href="/admin/students/student/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i data-lucide="graduation-cap"></i></div>
+                <h3>Tələbələr</h3>
+            </div>
+            <p>Tələbə qeydiyyatı və profillər</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_teachers %}
+        <a href="/admin/teachers/teacher/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><i data-lucide="briefcase"></i></div>
+                <h3>Müəllimlər</h3>
+            </div>
+            <p>Müəllim heyəti və bölmələr</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_courses %}
+        <a href="/admin/courses/course/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i data-lucide="book-open"></i></div>
+                <h3>Fənlər</h3>
+            </div>
+                <p>Fənlər və məzmun</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_groups %}
+        <a href="/admin/courses/group/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i data-lucide="building-2"></i></div>
+                <h3>Qruplar</h3>
+            </div>
+            <p>Tədris qrupları və bölmələr</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_payments %}
+        <a href="/admin/payments/payment/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i data-lucide="credit-card"></i></div>
+                <h3>Ödənişlər</h3>
+            </div>
+            <p>Ödəniş tarixçəsi və hesabatlar</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_attendance %}
+        <a href="/admin/attendance/attendance/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)"><i data-lucide="calendar-check"></i></div>
+                <h3>Davamiyyət</h3>
+            </div>
+            <p>Gündəlik davamiyyət qeydləri</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_exams %}
+        <a href="/admin/exam_system/exam/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#ec4899,#db2777)"><i data-lucide="file-text"></i></div>
+                <h3>İmtahanlar</h3>
+            </div>
+            <p>İmtahan sualları və nəticələr</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_online_exams %}
+        <a href="/admin/online_exam/exam/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#a855f7,#9333ea)"><i data-lucide="laptop"></i></div>
+                <h3>Online İmtahanlar</h3>
+            </div>
+            <p>Online imtahan platforması</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_schedule %}
+        <a href="/admin/schedule/schedule/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#a855f7,#9333ea)"><i data-lucide="calendar"></i></div>
+                <h3>Cədvəl</h3>
+            </div>
+            <p>Dərs cədvəli və vaxt planı</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_employees %}
+        <a href="/admin/employees/employee/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><i data-lucide="contact"></i></div>
+                <h3>İşçilər</h3>
+            </div>
+            <p>İşçi heyəti və vəzifələr</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_roles %}
+        <a href="/admin/roles/role/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#f97316,#ea580c)"><i data-lucide="shield"></i></div>
+                <h3>Rollar</h3>
+            </div>
+            <p>Rollar və icazələr</p>
+        </a>
+        {% endif %}
+
+        {% if can_see_settings %}
+        <a href="/admin/system_settings/systemsetting/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#64748b,#475569)"><i data-lucide="settings"></i></div>
+                <h3>Parametrlər</h3>
+            </div>
+            <p>Sistem parametrləri</p>
+        </a>
+        {% endif %}
+    </div>
+{% endblock %}

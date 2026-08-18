@@ -1,0 +1,179 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block title %}Tələbə Paneli | Oğuz Tədris Mərkəzi{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block otm_content %}
+    {# Welcome #}
+    <div class="otm-welcome">
+        <div class="otm-welcome-content">
+            <h1>Salam, {{ student.user.get_full_name|default:student.user.email }}!</h1>
+            <p>Oğuz Tədris Mərkəzi-də təhsil alırsınız. {{ stats.my_groups }} aktiv qrupunuz var. Davamiyyət göstəriciniz <strong>{{ stats.attendance_rate }}%</strong>.</p>
+            <div class="otm-welcome-stats">
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ stats.my_groups }}</div>
+                    <div class="ws-label">Aktiv Qrup</div>
+                </div>
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ stats.attendance_rate }}%</div>
+                    <div class="ws-label">Davamiyyət</div>
+                </div>
+                <div class="otm-welcome-stat">
+                    <div class="ws-val">{{ stats.total_paid|floatformat:0 }} ₼</div>
+                    <div class="ws-label">Ümumi Ödəniş</div>
+                </div>
+                {% if stats.pending_payments > 0 %}
+                <div class="otm-welcome-stat" style="background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.2)">
+                    <div class="ws-val" style="color:#ef4444">{{ stats.pending_payments }}</div>
+                    <div class="ws-label" style="color:#fca5a5">Gözləyən Ödəniş</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Stat Cards #}
+    <div class="otm-stats">
+        <div class="otm-stat-card blue">
+            <div class="otm-stat-top">
+                <div class="otm-stat-icon blue"><i data-lucide="layers"></i></div>
+            </div>
+            <div class="otm-stat-value">{{ stats.my_groups }}</div>
+            <div class="otm-stat-label">Qruplarım</div>
+        </div>
+        <div class="otm-stat-card emerald">
+            <div class="otm-stat-top">
+                <div class="otm-stat-icon emerald"><i data-lucide="calendar-check"></i></div>
+            </div>
+            <div class="otm-stat-value">{{ stats.attendance_rate }}%</div>
+            <div class="otm-stat-label">Davamiyyət</div>
+        </div>
+        <div class="otm-stat-card amber">
+            <div class="otm-stat-top">
+                <div class="otm-stat-icon amber"><i data-lucide="banknote"></i></div>
+            </div>
+            <div class="otm-stat-value">{{ stats.total_paid|floatformat:0 }} ₼</div>
+            <div class="otm-stat-label">Ödənilmiş</div>
+        </div>
+        <div class="otm-stat-card rose">
+            <div class="otm-stat-top">
+                <div class="otm-stat-icon rose"><i data-lucide="clock"></i></div>
+            </div>
+            <div class="otm-stat-value">{{ stats.pending_payments }}</div>
+            <div class="otm-stat-label">Gözləyən</div>
+        </div>
+    </div>
+
+    {# Chart #}
+    <div class="otm-card otm-card-mb">
+        <div class="otm-card-header">
+            <div>
+                <h3>Davamiyyət Trendi</h3>
+                <small>Son 6 ayın davamiyyət faizi</small>
+            </div>
+        </div>
+        <div class="otm-card-body">
+            <div class="otm-chart-wrap"><canvas id="otmStudentAttChart"></canvas></div>
+        </div>
+    </div>
+
+    {# Groups + Attendance #}
+    <div class="otm-grid-equal">
+        <div class="otm-card">
+            <div class="otm-card-header">
+                <h3>Mənim Fənlərim</h3>
+            </div>
+            <div class="otm-card-body">
+                <div class="otm-group-list">
+                    {% for g in my_groups %}
+                    <div class="otm-group-card">
+                        <div class="gc-name">{{ g.course.name }}</div>
+                        <div class="gc-meta">Müəllim: {{ g.teacher.user.get_full_name|default:"—" }}</div>
+                        {% if g.schedule_text %}
+                        <div class="gc-schedule">{{ g.schedule_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="otm-empty"><p>Qrup yoxdur</p></div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="otm-card">
+            <div class="otm-card-header">
+                <h3>Son Davamiyyətlər</h3>
+            </div>
+            <div class="otm-card-body no-pad">
+                <table class="otm-table">
+                    <thead>
+                        <tr><th>Fənlər</th><th>Tarix</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for a in recent_attendance %}
+                        <tr>
+                            <td class="fw-600">{{ a.group.course.name }}</td>
+                            <td>{{ a.lesson_date|date:"d.m.Y" }}</td>
+                            <td><span class="otm-badge {% if a.status == 'present' %}green{% elif a.status == 'late' %}amber{% else %}red{% endif %}"><span class="badge-dot"></span>{{ a.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="otm-empty-cell">Davamiyyət yoxdur</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# Payments #}
+    {% if recent_payments %}
+    <div class="otm-card otm-mt-20">
+        <div class="otm-card-header">
+            <h3>Son Ödənişlər</h3>
+        </div>
+        <div class="otm-card-body no-pad">
+            <table class="otm-table">
+                <thead>
+                    <tr><th>Məbləğ</th><th>Tarix</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in recent_payments %}
+                    <tr>
+                        <td class="otm-fw-700 {% if p.status == 'paid' %}otm-color-green{% endif %}">{{ p.paid_amount|floatformat:2 }} ₼</td>
+                        <td>{{ p.payment_date|date:"d.m.Y" }}</td>
+                        <td><span class="otm-badge {% if p.status == 'paid' %}green{% elif p.status == 'pending' %}amber{% else %}red{% endif %}"><span class="badge-dot"></span>{{ p.get_status_display }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="otm-empty-cell">Ödəniş yoxdur</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+    const months={{ chart_data.months|safe }};
+    const attData={{ chart_data.attendance|safe }};
+
+    const cs=getComputedStyle(document.documentElement);
+    new Chart(document.getElementById('otmStudentAttChart'),{
+        type:'line',
+        data:{labels:months,datasets:[{
+            label:'Davamiyyət %',data:attData,
+            borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,0.08)',
+            fill:true,tension:.4,pointRadius:4,pointHoverRadius:7,
+            pointBackgroundColor:'#6366f1',pointBorderColor:cs.getPropertyValue('--border'),pointBorderWidth:2,borderWidth:2.5
+        }]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:cs.getPropertyValue('--chart-tooltip-bg'),titleColor:cs.getPropertyValue('--chart-tooltip-text'),bodyColor:cs.getPropertyValue('--text-secondary'),padding:12,cornerRadius:10,displayColors:false}},scales:{x:{grid:{display:false},ticks:{color:cs.getPropertyValue('--text-muted'),font:{size:11}}},y:{grid:{color:cs.getPropertyValue('--chart-grid')},ticks:{color:cs.getPropertyValue('--text-muted'),font:{size:11},callback:function(v){return v+'%'}},max:100}}}
+    });
+});
+</script>
+{% endblock %}

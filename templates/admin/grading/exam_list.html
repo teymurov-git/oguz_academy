@@ -1,0 +1,229 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block page_title %}Qiymətləndirmə{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.search-box{display:flex;gap:8px;align-items:center}
+.search-input{padding:10px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:14px;font-weight:600;min-width:260px;letter-spacing:1px}
+.search-input:focus{outline:none;border-color:var(--accent)}
+.search-input::placeholder{color:var(--text-muted);font-weight:400;letter-spacing:0}
+.search-btn{padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+.search-btn:hover{background:var(--accent-hover)}
+.found-card{background:var(--bg-card);border:2px solid var(--accent);border-radius:14px;padding:24px;margin-top:16px}
+.found-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.found-avatar{width:56px;height:56px;border-radius:14px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0}
+.found-info h2{margin:0;font-size:18px;font-weight:800;color:var(--text-primary)}
+.found-info p{margin:4px 0 0;font-size:13px;color:var(--text-muted)}
+.nb-big{font-size:48px;font-weight:900;line-height:1}
+.error-card{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:20px;margin-top:16px;color:#f87171;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+.form-input{width:100%;padding:10px 14px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px}
+.form-input:focus{outline:none;border-color:var(--accent)}
+.btn-primary{padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-primary:hover{background:var(--accent-hover)}
+.success-msg{padding:12px 16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#34d399;font-size:13px;font-weight:600;margin-bottom:12px}
+.info-msg{padding:12px 16px;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);border-radius:10px;color:#818cf8;font-size:13px;font-weight:600;margin-bottom:12px}
+</style>
+{% endblock %}
+
+{% block otm_content %}
+<div class="otm-welcome">
+    <div class="otm-welcome-content">
+        <h1>İmtahan Qiymətləndirmə</h1>
+        <p>İmtahan yaradın, sual + düzgün cavab əlavə edin, tələbə cavablarını daxil edin.</p>
+    </div>
+</div>
+
+{% if messages %}
+{% for msg in messages %}
+<div class="{% if msg.tags == 'success' %}success-msg{% else %}info-msg{% endif %}">{{ msg }}</div>
+{% endfor %}
+{% endif %}
+
+<!-- Yeni İmtahan Yarat -->
+<div class="otm-card" style="padding:20px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <h2 style="margin:0;font-size:15px;font-weight:700">Yeni DİM İmtahanı</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <p style="margin:0;font-size:13px;color:var(--text-muted);flex:1;min-width:220px">
+            DİM bal sistemi ilə imtahan yaratmaq üçün <b>İmtahanlar</b> səhifəsinə keçin (Buraxılış/Blok, qrup, düzgün cavablar).
+        </p>
+        <a href="{% url 'dim_exam_list' %}" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;height:42px">
+            <i data-lucide="file-text" style="width:16px;height:16px"></i> İmtahanlar
+        </a>
+    </div>
+</div>
+
+<!-- İmtahanlar Siyahısı -->
+<div class="otm-card" style="padding:20px;margin-bottom:20px">
+    <h2 style="margin:0 0 14px;font-size:15px;font-weight:700">İmtahanlar</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+        {% for exam in exams %}
+        <a href="?exam_id={{ exam.pk }}{% if student_id_query %}&sid={{ student_id_query }}{% endif %}" style="text-decoration:none;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--border);color:var(--text-primary);background:var(--bg-card);transition:all 0.15s;{% if selected_exam and selected_exam.pk == exam.pk %}border-color:var(--accent);background:rgba(0,97,255,0.08);color:var(--accent){% endif %}">
+            {{ exam.title|truncatechars:30 }}
+        </a>
+        {% empty %}
+        <span style="font-size:13px;color:var(--text-muted)">Hələ imtahan yoxdur — yuxarıda yaradın</span>
+        {% endfor %}
+    </div>
+</div>
+
+{% if selected_exam %}
+<!-- Seçilmiş İmtahan -->
+<div class="otm-card" style="padding:20px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+            <h2 style="margin:0;font-size:16px;font-weight:700">
+                {{ selected_exam.title }}
+                {% if selected_exam.dim_type %}
+                <span style="display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;margin-left:6px;{% if selected_exam.dim_type == 'blok' %}background:rgba(167,139,250,0.12);color:#a78bfa{% else %}background:rgba(52,211,153,0.12);color:#34d399{% endif %}">{{ selected_exam.get_dim_type_display }}</span>
+                {% endif %}
+            </h2>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+                {{ selected_exam.get_exam_type_display }} &nbsp;|&nbsp; {{ selected_exam.subject|default:"-" }} &nbsp;|&nbsp; {{ selected_exam.total_questions }} sual &nbsp;|&nbsp; {{ student_exams|length }} iştirakçı
+            </div>
+        </div>
+        <div style="display:flex;gap:8px">
+            {% if selected_exam.dim_type %}
+            <a href="{% url 'dim_exam_answers' exam_id=selected_exam.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 16px;font-size:12px;background:rgba(167,139,250,0.1);color:#a78bfa;border-color:rgba(167,139,250,0.2)">
+                <i data-lucide="check-circle" style="width:14px;height:14px"></i> Düzgün Cavablar
+            </a>
+            {% else %}
+            <a href="{% url 'exam_manage' exam_id=selected_exam.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 16px;font-size:12px;background:rgba(167,139,250,0.1);color:#a78bfa;border-color:rgba(167,139,250,0.2)">
+                <i data-lucide="help-circle" style="width:14px;height:14px"></i> Sualları İdarə Et
+            </a>
+            {% endif %}
+            <a href="{% url 'grading_results' exam_id=selected_exam.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 16px;font-size:12px">
+                <i data-lucide="bar-chart-3" style="width:14px;height:14px"></i> Nəticələr
+            </a>
+        </div>
+    </div>
+
+    <!-- Tələbəni iş nömrəsi ilə qeydiyyatdan keçir -->
+    <div style="padding:14px;background:var(--bg-primary);border-radius:10px;margin-bottom:16px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">Tələbəni Qeydiyyatdan Keçir (iş nömrəsi ilə)</div>
+        <form method="POST" action="" style="display:flex;gap:8px;align-items:flex-end">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="register_student">
+            <input type="hidden" name="reg_exam_id" value="{{ selected_exam.pk }}">
+            <input type="text" name="reg_student_id" class="form-input" style="flex:1" placeholder="5 rəqəmli iş nömrəsi (məs: 12345)" required>
+            <button type="submit" class="btn-primary" style="height:42px;white-space:nowrap">
+                <i data-lucide="user-plus" style="width:14px;height:14px;display:inline;vertical-align:middle"></i> Qeydiyyat
+            </button>
+        </form>
+    </div>
+
+    <!-- Tələbə axtarış -->
+    <form method="GET" action="">
+        <input type="hidden" name="exam_id" value="{{ selected_exam.pk }}">
+        <div class="search-box" style="margin-bottom:16px">
+            <i data-lucide="search" style="width:20px;height:20px;color:var(--text-muted);flex-shrink:0"></i>
+            <input type="text" name="sid" class="search-input" value="{{ student_id_query }}" placeholder="Tələbənin iş nömrəsini yazın (məs: 12345)">
+            <button type="submit" class="search-btn">
+                <i data-lucide="arrow-right" style="width:16px;height:16px"></i> Axtar
+            </button>
+        </div>
+    </form>
+
+    {% if search_error %}
+    <div class="error-card">
+        <i data-lucide="alert-circle" style="width:20px;height:20px;flex-shrink:0"></i>
+        {{ search_error }}
+    </div>
+    {% endif %}
+
+    {% if found_student %}
+    {% for se in student_exams %}
+    {% with c=se.calc %}
+    <div class="found-card">
+        <div class="found-header">
+            <div class="found-avatar">{{ found_student.user.first_name.0|default:found_student.user.email.0|upper }}</div>
+            <div class="found-info" style="flex:1">
+                <h2>{{ found_student.user.get_full_name|default:found_student.user.email }}</h2>
+                <p>İş №: {{ found_student.work_number|default:"—" }} &nbsp;|&nbsp; {{ found_student.student_id }} &nbsp;|&nbsp; {{ se.get_status_display }}</p>
+            </div>
+            <div style="text-align:right">
+                <div class="nb-big" style="color:var(--accent)">{{ c.nb_score|floatformat:1 }}<span style="font-size:14px;color:var(--text-muted)">{% if c.is_dim %}/{{ c.dim_result.max_bal|floatformat:0 }}{% endif %}</span></div>
+                <div style="font-size:11px;color:var(--text-muted);font-weight:600">{% if c.is_dim %}DİM balı{% else %}NB{% endif %}</div>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+            <div style="text-align:center;padding:12px;background:var(--bg-primary);border-radius:10px">
+                <div style="font-size:22px;font-weight:800;color:#34d399">{{ c.dq }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">Doğru (Dq)</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--bg-primary);border-radius:10px">
+                <div style="font-size:22px;font-weight:800;color:#f87171">{{ c.yq }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">Yanlış (Yq)</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--bg-primary);border-radius:10px">
+                <div style="font-size:22px;font-weight:800;color:#fbbf24">{{ c.da|floatformat:1 }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">Açıq sual (Da)</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--bg-primary);border-radius:10px">
+                <div style="font-size:22px;font-weight:800;color:var(--text-muted)">{{ c.empty }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">Boş</div>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:8px">
+            <a href="{% url 'grading_enter' exam_id=selected_exam.pk student_exam_id=se.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 16px;font-size:13px">
+                <i data-lucide="edit-3" style="width:14px;height:14px"></i> Cavabları Daxil Et
+            </a>
+            <a href="{% url 'grading_answer_card' student_exam_id=se.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 16px;font-size:13px;background:var(--success);color:#fff">
+                <i data-lucide="grid-3x3" style="width:14px;height:14px"></i> Cavab Kartı
+            </a>
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+
+    {% elif student_exams and not student_id_query %}
+    <!-- Bütün iştirakçılar -->
+    <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">Bütün iştirakçılar ({{ student_exams|length }})</div>
+    {% for se in student_exams %}
+    {% with c=se.calc %}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-primary);border-radius:10px;margin-bottom:6px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:12px;flex:1">
+            <div class="otm-user-avatar" style="width:36px;height:36px;font-size:13px">{{ se.student.user.first_name.0|default:se.student.user.email.0|upper }}</div>
+            <div style="flex:1">
+                <div style="font-size:14px;font-weight:600">{{ se.student.user.get_full_name|default:se.student.user.email }}</div>
+                <div style="font-size:11px;color:var(--text-muted);font-family:monospace">İş №: {{ se.student.work_number|default:"—" }}</div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+            <div style="text-align:center;min-width:50px">
+                <div style="font-size:16px;font-weight:800;color:var(--accent)">{{ c.nb_score|floatformat:1 }}</div>
+                <div style="font-size:9px;color:var(--text-muted)">{% if c.is_dim %}Bal{% else %}NB{% endif %}</div>
+            </div>
+            <div style="text-align:center;min-width:30px">
+                <div style="font-size:14px;font-weight:700;color:#34d399">{{ c.dq }}</div>
+                <div style="font-size:9px;color:var(--text-muted)">Dq</div>
+            </div>
+            <div style="text-align:center;min-width:30px">
+                <div style="font-size:14px;font-weight:700;color:#f87171">{{ c.yq }}</div>
+                <div style="font-size:9px;color:var(--text-muted)">Yq</div>
+            </div>
+            <a href="{% url 'grading_enter' exam_id=selected_exam.pk student_exam_id=se.pk %}" class="otm-qa-btn" style="padding:6px 12px;font-size:11px;text-decoration:none">
+                <i data-lucide="edit-3" style="width:12px;height:12px"></i> Daxil Et
+            </a>
+            <a href="{% url 'grading_answer_card' student_exam_id=se.pk %}" class="otm-qa-btn" style="padding:6px 12px;font-size:11px;text-decoration:none;background:var(--success);color:#fff">
+                <i data-lucide="grid-3x3" style="width:12px;height:12px"></i> Kart
+            </a>
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+
+    {% elif not student_id_query and not search_error %}
+    <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">
+        İş nömrəsi yazaraq tələbəni axtarın
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

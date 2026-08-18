@@ -1,0 +1,139 @@
+{% extends "admin/base_site.html" %}
+
+{% block page_title %}Cavab Kartı{% endblock %}
+
+{% block otm_content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+        <a href="{% url 'grading_results' exam_id=exam.pk %}" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;margin-bottom:4px">
+            <i data-lucide="arrow-left" style="width:14px;height:14px"></i> Nəticələr
+        </a>
+        <h1 style="margin:0;font-size:20px;font-weight:800">Cavab Kartı — {{ student_exam.student.user.get_full_name|default:student_exam.student.user.email }}</h1>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+            {{ exam.title }} &nbsp;|&nbsp; {{ student_exam.student.student_id }}
+            {% if student_exam.student.work_number %} &nbsp;|&nbsp; İş №: {{ student_exam.student.work_number }}{% endif %}
+            &nbsp;|&nbsp; {% if is_dim %}Ümumi: {{ dim_total_bal|floatformat:1 }}/{{ dim_max_bal|floatformat:0 }}{% else %}NB: {{ nb_score|floatformat:1 }}{% endif %}
+        </div>
+    </div>
+    <div style="display:flex;gap:8px">
+        <a href="{% url 'grading_enter' exam_id=exam.pk student_exam_id=student_exam.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 16px">
+            <i data-lucide="edit-3" style="width:14px;height:14px"></i> Redaktə
+        </a>
+        <a href="{% url 'grading_results' exam_id=exam.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 16px">
+            <i data-lucide="bar-chart-3" style="width:14px;height:14px"></i> Nəticələr
+        </a>
+    </div>
+</div>
+
+<!-- Score Summary -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px">
+    <div style="padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center">
+        <div style="font-size:32px;font-weight:800;color:var(--accent)">
+            {{ dim_total_bal|floatformat:1 }}<span style="font-size:14px;color:var(--text-muted)">/{{ dim_max_bal|floatformat:0 }}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase">{% if is_dim %}Ümumi Bal{% else %}NB Balı{% endif %}</div>
+    </div>
+    <div style="padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center">
+        <div style="font-size:32px;font-weight:800;color:#34d399">{{ dq }}</div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Doğru (Dq)</div>
+    </div>
+    <div style="padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center">
+        <div style="font-size:32px;font-weight:800;color:#f87171">{{ yq }}</div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Yanlış (Yq)</div>
+    </div>
+    <div style="padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center">
+        <div style="font-size:32px;font-weight:800;color:#fbbf24">{{ da|floatformat:1 }}</div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Açıq (Da)</div>
+    </div>
+    <div style="padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center">
+        <div style="font-size:32px;font-weight:800;color:var(--text-muted)">{{ empty }}</div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Boş</div>
+    </div>
+</div>
+
+<!-- Answer Grid -->
+<div class="otm-card" style="padding:24px;margin-bottom:24px">
+    <h2 style="margin:0 0 16px;font-size:16px;font-weight:700">Cavab Kartı</h2>
+    {% if is_dim %}
+        {% for block in subject_blocks %}
+        <div style="margin-bottom:18px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;background:rgba(79,70,229,0.07);border:1px solid var(--border);margin-bottom:10px">
+                <span style="font-size:13px;font-weight:800;color:var(--text-primary)">{{ block.name }}</span>
+                <span style="font-size:11px;color:var(--text-muted)">Dq {{ block.dq }} / Yq {{ block.yq }} &nbsp;|&nbsp; {% if exam.dim_type == 'buraxilis' %}NB {{ block.bal|floatformat:1 }}{% else %}NB {{ block.nb|floatformat:1 }} → <b style="color:var(--accent)">{{ block.bal|floatformat:1 }}</b> × {{ block.coeff }}{% endif %}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px">
+                {% for card in block.cards %}
+                {% include "admin/grading/_card_cell.html" %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px">
+        {% for card in cards %}
+        {% include "admin/grading/_card_cell.html" %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Detailed Question Review -->
+<div class="otm-card" style="padding:24px">
+    <h2 style="margin:0 0 16px;font-size:16px;font-weight:700">Ətraflı Baxış</h2>
+
+    {% for card in cards %}
+    <div style="padding:16px;border:1px solid var(--border);border-radius:10px;margin-bottom:12px;
+        {% if card.status == 'correct' %}border-left:3px solid #34d399
+        {% elif card.status == 'wrong' %}border-left:3px solid #f87171
+        {% else %}border-left:3px solid var(--text-muted){% endif %}">
+        <div style="display:flex;align-items:flex-start;gap:12px">
+            <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0
+                {% if card.status == 'correct' %}background:rgba(16,185,129,0.15);color:#34d399
+                {% elif card.status == 'wrong' %}background:rgba(239,68,68,0.15);color:#f87171
+                {% else %}background:var(--bg-primary);color:var(--text-muted){% endif %}">
+                {{ card.number }}
+            </div>
+            <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px">
+                    {% if is_dim and card.subject %}<span style="display:inline-block;font-size:10px;font-weight:700;color:#818cf8;background:rgba(79,70,229,0.1);border-radius:5px;padding:2px 8px;margin-right:6px">{{ card.subject|truncatechars:12 }}</span>{% endif %}
+                    {{ card.question.text|truncatechars:200 }}
+                </div>
+
+                {% if card.question.question_type in 'single_choice,true_false,multiple_choice' %}
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                    {% for opt in card.options %}
+                    <div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600
+                        {% if opt.id in card.correct_ids and opt.id in card.selected %}background:rgba(16,185,129,0.15);color:#34d399
+                        {% elif opt.id in card.selected and opt.id not in card.correct_ids %}background:rgba(239,68,68,0.15);color:#f87171
+                        {% elif opt.id in card.correct_ids %}background:rgba(16,185,129,0.08);color:#34d399;border:1px dashed rgba(16,185,129,0.3)
+                        {% else %}background:var(--bg-primary);color:var(--text-muted){% endif %}">
+                        {% if opt.id in card.selected %}✓{% endif %} {{ opt.id|upper }}: {{ opt.text|truncatechars:40 }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="font-size:12px;color:var(--text-secondary);padding:8px 12px;background:var(--bg-primary);border-radius:6px">
+                    {{ card.answer.text_answer|default:"(cavab yoxdur)" }}
+                    {% if card.answer %}
+                    <span style="margin-left:8px;font-weight:700
+                        {% if card.status == 'correct' %}color:#34d399{% else %}color:#f87171{% endif %}">
+                        {{ card.answer.points_earned }}/{{ card.question.points }} bal
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <div style="flex-shrink:0">
+                {% if card.status == 'correct' %}
+                <span style="display:inline-block;width:24px;height:24px;border-radius:50%;background:rgba(16,185,129,0.15);text-align:center;line-height:24px;font-size:12px;color:#34d399">✓</span>
+                {% elif card.status == 'wrong' %}
+                <span style="display:inline-block;width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,0.15);text-align:center;line-height:24px;font-size:12px;color:#f87171">✗</span>
+                {% else %}
+                <span style="display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--bg-primary);text-align:center;line-height:24px;font-size:12px;color:var(--text-muted)">—</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -6,11 +6,12 @@ class AttendanceForm(forms.ModelForm):
 
     class Meta:
         model = Attendance
-        fields = ['group', 'student', 'date', 'status', 'note']
+        fields = ['student', 'group', 'lesson_date', 'status', 'late_minutes', 'reason']
         widgets = {
-            'group': forms.Select(attrs={'class': 'form-control'}),
             'student': forms.Select(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'group': forms.Select(attrs={'class': 'form-control'}),
+            'lesson_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
-            'note': forms.TextInput(attrs={'class': 'form-control'}),
+            'late_minutes': forms.NumberInput(attrs={'class': 'form-control'}),
+            'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }

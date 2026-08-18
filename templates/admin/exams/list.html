@@ -1,0 +1,196 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block page_title %}İmtahanlar{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.form-input{width:100%;padding:10px 14px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px}
+.form-input:focus{outline:none;border-color:var(--accent)}
+.btn-primary{padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-primary:hover{background:var(--accent-hover)}
+.success-msg{padding:12px 16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#34d399;font-size:13px;font-weight:600;margin-bottom:12px}
+.info-msg{padding:12px 16px;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);border-radius:10px;color:#818cf8;font-size:13px;font-weight:600;margin-bottom:12px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+.badge-blok{background:rgba(167,139,250,0.12);color:#a78bfa}
+.badge-buraxilis{background:rgba(52,211,153,0.12);color:#34d399}
+.badge-grup{background:rgba(79,70,229,0.1);color:#818cf8;margin-left:4px}
+.exam-row{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--bg-primary);border-radius:12px;margin-bottom:8px;border:1px solid var(--border);transition:all 0.15s}
+.exam-row:hover{border-color:var(--accent)}
+.subtype-select{display:none}
+</style>
+{% endblock %}
+
+{% block otm_content %}
+<div class="otm-welcome">
+    <div class="otm-welcome-content">
+        <h1>İmtahanlar</h1>
+        <p>DİM bal sistemi üzrə imtahan yaradın, düzgün cavabları daxil edin, qiymətləndirin.</p>
+    </div>
+</div>
+
+{% if messages %}
+{% for msg in messages %}
+<div class="{% if msg.tags == 'success' %}success-msg{% else %}info-msg{% endif %}">{{ msg }}</div>
+{% endfor %}
+{% endif %}
+
+<!-- Yeni İmtahan Yarat -->
+<div class="otm-card" style="padding:22px;margin-bottom:20px">
+    <h2 style="margin:0 0 16px;font-size:15px;font-weight:700">Yeni DİM İmtahanı Yarat</h2>
+    <form method="POST" action="" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_exam">
+        <div style="grid-column:span 2">
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">İmtahan adı *</label>
+            <input type="text" name="title" class="form-input" required placeholder="məs: May Blok Sınaq">
+        </div>
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Tarix (Bakı vaxtı)</label>
+            <input type="datetime-local" name="start_datetime" class="form-input" value="{{ now_value }}" lang="az">
+        </div>
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Növü</label>
+            <select name="dim_type" id="dim_type" class="form-input" onchange="toggleSubtype()">
+                <option value="buraxilis">Buraxılış (300 bal)</option>
+                <option value="blok" selected>Blok (400 bal)</option>
+            </select>
+        </div>
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Qeydiyyat son tarixi (Bakı vaxtı)</label>
+            <input type="datetime-local" name="registration_deadline" class="form-input" value="{{ now_value }}" lang="az">
+        </div>
+        <div id="qrup_wrap">
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Qrup</label>
+            <select name="exam_group" id="exam_group" class="form-input" onchange="toggleSubtype()">
+                <option value="1">I qrup</option>
+                <option value="2">II qrup</option>
+                <option value="3">III qrup</option>
+                <option value="4">IV qrup</option>
+            </select>
+        </div>
+        <div class="subtype-select" id="subtype_wrap">
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Alt növ</label>
+            <select name="group_subtype" id="group_subtype" class="form-input">
+                <option value="">Standart</option>
+                <option value="ri">Rİ</option>
+                <option value="rk">RK</option>
+                <option value="tc">TC</option>
+                <option value="dt">DT</option>
+            </select>
+        </div>
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Qiymət (AZN)</label>
+            <input type="number" name="price" class="form-input" step="0.01" min="0" value="15" placeholder="məs: 15">
+        </div>
+        <div style="grid-column:span 2">
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Məkan</label>
+            <input type="text" name="location" class="form-input" placeholder="məs: Binəqədi mərkəzi, S. Vurğun 43">
+        </div>
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Maks iştirakçı</label>
+            <input type="number" name="max_participants" class="form-input" min="0" value="0" placeholder="0 = limitsiz">
+        </div>
+        <div>
+            <button type="submit" class="btn-primary" style="height:42px;width:100%">
+                <i data-lucide="plus" style="width:16px;height:16px;display:inline;vertical-align:middle"></i> Yarat
+            </button>
+        </div>
+    </form>
+    <div style="margin-top:14px;font-size:12px;color:var(--text-muted);line-height:1.8">
+        Yaratdıqda hər fənn üçün <b>{{ questions_per_subject }} sual</b> avtomatik yaradılır (sual mətnləri sonradan redaktə oluna bilər).
+        Buraxılış: sabit fənlər <b>Tədris dili + Riyaziyyat + Xarici dil</b>, hər fənn 0–100, maks. <b>300 bal</b>, cərimə yoxdur.
+        Blok: hər fənn <b>30 sual</b> — <b>22 qapalı</b> + <b>5 kodlaşdırılan açıq</b> + <b>3 tam açıq</b> (tam açıq sualların cavabı adminə daxil edilmir, yoxlamada qiymətləndirilir), maks. <b>400 bal</b>, yanlış cavabda ¼ bal cərimə, çəki əmsalları tətbiq olunur.
+        Yekun = Buraxılış + Blok (maks. <b>700 bal</b>).
+    </div>
+</div>
+
+<!-- İmtahanlar Siyahısı -->
+<div class="otm-card" style="padding:22px">
+    <h2 style="margin:0 0 14px;font-size:15px;font-weight:700">İmtahanlar ({{ exams|length }})</h2>
+    {% for exam in exams %}
+    <div class="exam-row">
+        <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                {{ exam.title|truncatechars:40 }}
+                {% if exam.dim_type %}
+                    <span class="badge {% if exam.dim_type == 'blok' %}badge-blok{% else %}badge-buraxilis{% endif %}">
+                        {{ exam.get_dim_type_display }}
+                    </span>
+                    <span class="badge badge-grup">{{ exam.get_exam_group_display }}</span>
+                {% endif %}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:3px">
+                {{ exam.start_datetime|default:"Tarix təyin edilməyib"|date:"d.m.Y H:i" }} &nbsp;|&nbsp;
+                Qeydiyyat sonu: {{ exam.registration_deadline|default:"—"|date:"d.m.Y H:i" }} &nbsp;|&nbsp;
+                {{ exam.total_questions }} sual &nbsp;|&nbsp; {{ exam.student_exams.count }} iştirakçı &nbsp;|&nbsp;
+                Qiymət: <b style="color:var(--text-primary)">{{ exam.price|floatformat:2 }} AZN</b>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+            {% if exam.dim_type %}
+            <a href="{% url 'dim_exam_registrations' exam_id=exam.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 14px;font-size:12px;background:rgba(52,211,153,0.1);color:#34d399;border-color:rgba(52,211,153,0.2)">
+                <i data-lucide="users" style="width:14px;height:14px"></i> Qeydiyyatlar ({{ exam.registrations_count }})
+            </a>
+            <a href="{% url 'dim_exam_answers' exam_id=exam.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 14px;font-size:12px;background:rgba(167,139,250,0.1);color:#a78bfa;border-color:rgba(167,139,250,0.2)">
+                <i data-lucide="check-circle" style="width:14px;height:14px"></i> Düzgün Cavablar
+            </a>
+            {% endif %}
+            <a href="{% url 'grading_exam_list' %}?exam_id={{ exam.pk }}" class="otm-qa-btn" style="text-decoration:none;padding:8px 14px;font-size:12px">
+                <i data-lucide="clipboard-check" style="width:14px;height:14px"></i> Qiymətləndir
+            </a>
+            <a href="{% url 'grading_results' exam_id=exam.pk %}" class="otm-qa-btn" style="text-decoration:none;padding:8px 14px;font-size:12px;background:var(--success);color:#fff">
+                <i data-lucide="bar-chart-3" style="width:14px;height:14px"></i> Nəticələr
+            </a>
+            <form method="POST" action="" onsubmit="return confirm('Bu imtahanı silmək istədiyinizə əminsiniz?')" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_exam">
+                <input type="hidden" name="exam_id" value="{{ exam.pk }}">
+                <button type="submit" class="otm-qa-btn" style="background:rgba(239,68,68,0.1);color:#f87171;border-color:rgba(239,68,68,0.2);cursor:pointer;font-size:12px">
+                    <i data-lucide="trash-2" style="width:14px;height:14px"></i> Sil
+                </button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">
+        Hələ imtahan yoxdur — yuxarıda yaradın.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+function toggleSubtype() {
+    var dimType = document.getElementById('dim_type').value;
+    var qrupWrap = document.getElementById('qrup_wrap');
+    var wrap = document.getElementById('subtype_wrap');
+    var sel = document.getElementById('group_subtype');
+    if (dimType === 'buraxilis') {
+        qrupWrap.style.display = 'none';
+        wrap.style.display = 'none';
+        sel.value = '';
+        return;
+    }
+    qrupWrap.style.display = 'block';
+    var group = document.getElementById('exam_group').value;
+    var allowed = { '1': ['ri', 'rk'], '3': ['tc', 'dt'] }[group] || [];
+    for (var i = 0; i < sel.options.length; i++) {
+        var opt = sel.options[i];
+        opt.disabled = opt.value !== '' && allowed.indexOf(opt.value) === -1;
+        if (opt.disabled) opt.hidden = true; else opt.hidden = false;
+    }
+    if (allowed.length) {
+        wrap.style.display = 'block';
+        if (allowed.indexOf(sel.value) === -1) sel.value = allowed[0];
+    } else {
+        wrap.style.display = 'none';
+        sel.value = '';
+    }
+}
+document.addEventListener('DOMContentLoaded', toggleSubtype);
+</script>
+{% endblock %}

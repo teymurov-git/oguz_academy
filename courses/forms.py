@@ -49,14 +49,14 @@ class GroupForm(forms.ModelForm):
 
     class Meta:
         model = Group
-        fields = ['name', 'course', 'teacher', 'students', 'schedule', 'start_date', 'end_date', 'max_students', 'is_active']
+        fields = ['name', 'course', 'teacher', 'schedule_text', 'start_date', 'end_date', 'max_students', 'price', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'course': forms.Select(attrs={'class': 'form-control'}),
             'teacher': forms.Select(attrs={'class': 'form-control'}),
-            'students': forms.SelectMultiple(attrs={'class': 'form-control'}),
-            'schedule': forms.TextInput(attrs={'class': 'form-control'}),
+            'schedule_text': forms.TextInput(attrs={'class': 'form-control'}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'max_students': forms.NumberInput(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }

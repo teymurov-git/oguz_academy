@@ -1,0 +1,28 @@
+{% load static %}
+<div style="position:relative;padding:12px 8px;border-radius:10px;text-align:center;border:2px solid transparent;cursor:default;transition:all 0.2s
+    {% if card.status == 'correct' %}background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.3)
+    {% elif card.status == 'wrong' %}background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.3)
+    {% else %}background:var(--bg-primary);border-color:var(--border){% endif %}">
+    <div style="font-size:18px;font-weight:800;margin-bottom:4px
+        {% if card.status == 'correct' %}color:#34d399
+        {% elif card.status == 'wrong' %}color:#f87171
+        {% else %}color:var(--text-muted){% endif %}">
+        {{ card.number }}
+    </div>
+    {% if card.status == 'correct' %}
+    <div style="font-size:10px;color:#34d399;font-weight:700">DOĞRU</div>
+    {% elif card.status == 'wrong' %}
+    <div style="font-size:10px;color:#f87171;font-weight:700">YANLIŞ</div>
+    {% else %}
+    <div style="font-size:10px;color:var(--text-muted);font-weight:600">BOŞ</div>
+    {% endif %}
+
+    {% if card.status == 'wrong' and card.selected %}
+    <div style="margin-top:4px;font-size:9px;color:#f87171">
+        Siz: {{ card.selected|join:", " }}
+    </div>
+    <div style="font-size:9px;color:#34d399">
+        Düz: {{ card.correct_ids|join:", " }}
+    </div>
+    {% endif %}
+</div>

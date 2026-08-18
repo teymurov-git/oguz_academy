@@ -1,0 +1,82 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block title %}{% if cl.formset and cl.formset.errors %}{% translate "Error:" %} {% endif %}{{ block.super }}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ media.js }}
+<script src="{% static 'admin/js/filters.js' %}" defer></script>
+{% if cl.formset or action_form %}
+    <script src="{% url 'admin:jsi18n' %}"></script>
+{% endif %}
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static "admin/css/changelists.css" %}">
+{% if cl.formset %}
+    <link rel="stylesheet" href="{% static "admin/css/forms.css" %}">
+{% endif %}
+{% endblock %}
+
+{% block otm_content %}
+<div class="otm-content-wrapper">
+    {% if cl.formset and cl.formset.errors %}
+    <div class="otm-alert otm-alert-error">
+        <strong>Xəta!</strong> Zəhmət olmasa aşağıdakı xətaları düzəldin:
+        {{ cl.formset.non_form_errors }}
+    </div>
+    {% endif %}
+
+    <div class="otm-toolbar">
+        <div class="otm-toolbar-left">
+            {% search_form cl %}
+        </div>
+        <div class="otm-toolbar-right">
+            {% if has_add_permission %}
+            <a href="/admin/{{ opts.app_label }}/{{ opts.model_name }}/add/" class="otm-btn otm-btn-primary">
+                <i data-lucide="plus"></i> Yeni {{ opts.verbose_name }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if cl.filter_specs %}
+    <div class="otm-filter-bar">
+        <span class="otm-filter-label"><i data-lucide="sliders-horizontal"></i> Filtrlər</span>
+        {% for spec in cl.filter_specs %}
+            {% admin_list_filter cl spec %}
+        {% endfor %}
+        {% if cl.has_active_filters %}
+        <a href="{{ cl.clear_all_filters_qs }}" class="otm-filter-clear"><i data-lucide="x"></i> Təmizlə</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="otm-table-card">
+        <form id="changelist-form" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>
+            {% csrf_token %}
+            {% if cl.formset %}
+            <div>{{ cl.formset.management_form }}</div>
+            {% endif %}
+
+            {% if action_form and actions_on_top and cl.show_admin_actions %}
+            <div class="otm-toolbar otm-toolbar-inset" style="border-bottom:1px solid var(--border)">
+                {% admin_actions %}
+            </div>
+            {% endif %}
+
+            {% result_list cl %}
+
+            {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+            <div class="otm-toolbar otm-toolbar-inset" style="border-top:1px solid var(--border)">
+                {% admin_actions %}
+            </div>
+            {% endif %}
+
+            {% pagination cl %}
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -13,12 +13,16 @@ class StudentForm(forms.ModelForm):
 
     class Meta:
         model = Student
-        fields = ['phone', 'parent_phone', 'address', 'date_of_birth', 'is_active']
+        fields = ['phone', 'address', 'date_of_birth', 'school', 'grade_level', 'gender', 'emergency_phone', 'status', 'is_active']
         widgets = {
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
-            'parent_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'emergency_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'school': forms.TextInput(attrs={'class': 'form-control'}),
+            'grade_level': forms.TextInput(attrs={'class': 'form-control'}),
+            'gender': forms.Select(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

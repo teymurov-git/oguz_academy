@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Əsas Səhifə</title>
 
-    <link rel="stylesheet" href="{% static '../static/css/style.css' %}" />
-    <link rel="stylesheet" href="{% static '../static/css/responsive.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
@@ -44,24 +44,11 @@
           </div>
         </li>
         <li><a href="{% url 'events' %}">Tədbirlərimiz</a></li>
-        <li><a href="{% url 'exam_list' %}">Sınaqlar</a></li>
         <li><a href="{% url 'contact' %}">Əlaqə</a></li>
+        <li><a href="{% url 'exam_list' %}">Sınaqlar</a></li>
+        <li><a href="{% url 'public_results' %}">Nəticələrim</a></li>
         {% if user.is_authenticated %}
         <li><a href="{% url 'profile' %}">Profil</a></li>
-        {% if user.is_staff %}
-        <li class="dropdown">
-          <a href="#" id="manageMenu">İdarə</a>
-          <div class="dropdown-content">
-            <a href="{% url 'dashboard' %}">Panel</a>
-            <a href="{% url 'student_list' %}">Şagirdlər</a>
-            <a href="{% url 'teacher_list' %}">Müəllimlər</a>
-            <a href="{% url 'course_list' %}">Kurslar</a>
-            <a href="{% url 'group_list' %}">Qruplar</a>
-            <a href="{% url 'payment_list' %}">Ödənişlər</a>
-            <a href="{% url 'attendance_list' %}">Davamiyyət</a>
-          </div>
-        </li>
-        {% endif %}
         {% else %}
         <li><a href="{% url 'login' %}">Profil</a></li>
         {% endif %}
@@ -72,12 +59,9 @@
       {% if user.is_authenticated %}
         <form method="post" action="{% url 'logout' %}" style="display: inline;">
             {% csrf_token %}
-            <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" class="auth-btn" title="Çıxış" style="background: none; border: none; cursor: pointer;">
-                    <i class="fas fa-sign-out-alt" style="font-size: 20px; color: #333;"></i>
-                </button>
-            </form>
+            <button type="submit" class="auth-btn" title="Çıxış" style="background: none; border: none; cursor: pointer;">
+                <i class="fas fa-sign-out-alt" style="font-size: 20px; color: #333;"></i>
+            </button>
         </form>
       {% else %}
       <a href="{% url 'login' %}" class="auth-btn" title="Giriş" style="text-decoration: none; background: none; border: none; cursor: pointer;">
@@ -87,6 +71,7 @@
     </div>
   </header>
 
+<div class="page-content">
 {% block content %}
     <main>
       <section class="welcome">
@@ -99,76 +84,84 @@
         </div>
         
         <div class="main-photos">
-          <img src="{% static '../static/images/image1.png' %}" alt="Şəkil 1" />
-          <img src="{% static '../static/images/image2.png' %}" alt="Şəkil 2" />
-          <img src="{% static '../static/images/image3.png' %}" alt="Şəkil 3" />
+          <img src="{% static 'images/image1.png' %}" alt="Şəkil 1" />
+          <img src="{% static 'images/image2.png' %}" alt="Şəkil 2" />
+          <img src="{% static 'images/image3.png' %}" alt="Şəkil 3" />
         </div>
       </section>
     </main>
 {% endblock %}
+</div>
 
-    <footer>
-      <div class="contact">
-        <div>
-          <h3>Oğuz Tədris Mərkəzi</h3>
-          <p>
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="{% url 'home' %}">
+            <img src="{% static 'images/image.png' %}" alt="Oğuz Logo" class="footer-logo" />
+          </a>
+          <p class="footer-desc">
             Texnologiya və proqramlaşdırma sahəsində gələcəyinizi bizimlə qurun.
             Peşəkar müəllimlər və real layihələr sizi gözləyir.
           </p>
-          <div class="social">
-            <a
-              href="https://www.instagram.com/oguztedrismerkezi/"
-              target="_blank"
-            >
-              <i class="fa-brands fa-instagram"></i>
-            </a>
-            <i class="fa-brands fa-facebook"></i>
-            <i class="fa-brands fa-youtube"></i>
+          <div class="footer-social">
+            <a href="https://www.instagram.com/oguztedrismerkezi/" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#"><i class="fa-brands fa-youtube"></i></a>
+            <a href="#"><i class="fa-brands fa-telegram"></i></a>
           </div>
         </div>
 
-        <div class="navigasiya">
-          <h3>Navigasiya</h3>
-          <ul class="footer-nav">
+        <div class="footer-links">
+          <h4>Sürətli Keçidlər</h4>
+          <ul>
             <li><a href="{% url 'home' %}">Əsas Səhifə</a></li>
             <li><a href="{% url 'about' %}">Haqqımızda</a></li>
             <li><a href="{% url 'events' %}">Tədbirlərimiz</a></li>
             <li><a href="{% url 'contact' %}">Əlaqə</a></li>
+            <li><a href="{% url 'exam_list' %}">Sınaqlar</a></li>
           </ul>
         </div>
 
-        <div>
-          <h3>Əlaqə</h3>
-          <p>
-            <i class="fa-solid fa-phone"></i>
-            Telefon: <a href="tel:+994705037020">+994 70 503 70 20</a>
-          </p>
-          <p>
-            <i class="fa-solid fa-envelope"></i>
-            Email:
-            <a href="mailto:oguztehsilmerkezi@gmail.com">
-              oguztehsilmerkezi@gmail.com
-            </a>
-          </p>
-          <p>
-            <i class="fa-solid fa-location-dot"></i>
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Balababa+Məcidov+55,+Bakı,+Azərbaycan"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Balababa Məcidov 55, Bakı, Azərbaycan
-            </a>
-          </p>
+        <div class="footer-courses">
+          <h4>Kurslarımız</h4>
+          <ul>
+            <li><a href="{% url 'python' %}">Proqramlaşdırma (Python)</a></li>
+            <li><a href="{% url 'django' %}">Veb Proqramlaşdırma (Django)</a></li>
+            <li><a href="{% url 'language' %}">Xarici Dil</a></li>
+            <li><a href="{% url 'informatics' %}">İnformatika</a></li>
+            <li><a href="{% url 'abiturient' %}">Abituriyent hazırlığı</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-contact">
+          <h4>Əlaqə</h4>
+          <ul>
+            <li>
+              <i class="fa-solid fa-phone"></i>
+              <a href="tel:+994705037020">+994 70 503 70 20</a>
+            </li>
+            <li>
+              <i class="fa-solid fa-envelope"></i>
+              <a href="mailto:oguztehsilmerkezi@gmail.com">oguztehsilmerkezi@gmail.com</a>
+            </li>
+            <li>
+              <i class="fa-solid fa-location-dot"></i>
+              <a href="https://www.google.com/maps/search/?api=1&query=Balababa+Məcidov+55,+Bakı,+Azərbaycan" target="_blank" rel="noopener noreferrer">
+                Balababa Məcidov 55, Bakı, Azərbaycan
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <p>&copy; 2025 Oğuz Tədris Mərkəzi. Bütün hüquqlar qorunur.</p>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Oğuz Tədris Mərkəzi. Bütün hüquqlar qorunur.</p>
+      </div>
     </footer>
 
 
 {% block js %}
-    <script src="{% static '../static/js/main.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
 {% endblock %}  
 
   </body>

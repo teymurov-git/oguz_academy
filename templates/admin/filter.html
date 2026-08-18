@@ -1,0 +1,12 @@
+{% load i18n %}
+<details class="otm-filter-group" data-filter-title="{{ title }}">
+    <summary class="otm-filter-group-label">{{ title }}</summary>
+    <div class="otm-filter-options">
+    {% for choice in choices %}
+        <a href="{{ choice.query_string|iriencode }}" class="otm-filter-opt{% if choice.selected %} selected{% endif %}">
+            {% if choice.selected %}<span class="otm-filter-check"></span>{% endif %}
+            {{ choice.display }}
+        </a>
+    {% endfor %}
+    </div>
+</details>

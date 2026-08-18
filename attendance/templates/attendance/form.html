@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main>
+  <section class="attendance-form">
+    <div class="container">
+      <h1>Davamiyyət əlavə et</h1>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Yadda saxla</button>
+        <a href="{% url 'attendance_list' %}" class="btn btn-secondary">Geri</a>
+      </form>
+    </div>
+  </section>
+</main>
+{% endblock %}

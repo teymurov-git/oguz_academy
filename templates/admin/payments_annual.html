@@ -1,0 +1,205 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}İllik Ödənişlər | Oğuz Tədris Mərkəzi{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.otm-pay-page { display:flex;gap:24px;padding:24px;align-items:flex-start; }
+.otm-pay-side { width:220px;flex-shrink:0; }
+.otm-pay-main { flex:1;min-width:0; }
+
+.otm-pay-side .otm-card { background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:16px;margin-bottom:12px; }
+.otm-pay-side .otm-card h3 { font-size:13px;font-weight:600;color:#94a3b8;margin:0 0 12px 0;text-transform:uppercase;letter-spacing:0.5px; }
+.otm-pay-side .otm-card .ay-item { display:block;padding:8px 10px;border-radius:6px;font-size:13px;color:#e2e8f0;text-decoration:none;transition:background .1s; }
+.otm-pay-side .otm-card .ay-item:hover { background:#1e293b; }
+.otm-pay-side .otm-card .ay-item.active { background:#1e3a5f;color:#60a5fa;font-weight:600; }
+
+.otm-pay-export { display:flex;flex-direction:column;gap:6px; }
+.otm-pay-export a { display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;font-size:13px;color:#e2e8f0;text-decoration:none;transition:background .1s; }
+.otm-pay-export a:hover { background:#1e293b; }
+.otm-pay-export a i { font-size:16px; }
+
+.otm-pay-toolbar { display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap; }
+.otm-pay-toolbar .year-nav { display:flex;align-items:center;gap:10px; }
+.otm-pay-toolbar .year-nav a { color:#60a5fa;text-decoration:none;font-weight:500;font-size:13px; }
+.otm-pay-toolbar .year-nav a:hover { text-decoration:underline; }
+.otm-pay-toolbar .year-nav span { font-size:16px;font-weight:700;color:#f1f5f9; }
+.otm-pay-toolbar .btn { padding:7px 14px;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#e2e8f0;font-size:13px;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px; }
+.otm-pay-toolbar .btn:hover { border-color:#475569;background:#273548; }
+.otm-pay-toolbar .btn-primary { background:#2563eb;border-color:#2563eb;color:#fff; }
+.otm-pay-toolbar .btn-primary:hover { background:#1d4ed8;border-color:#1d4ed8; }
+.otm-pay-toolbar .filter-form { display:flex;align-items:center;gap:8px; }
+.otm-pay-toolbar .filter-form select { padding:7px 10px;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#e2e8f0;font-size:13px; }
+.otm-pay-toolbar .filter-form button { padding:7px 14px;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#e2e8f0;font-size:13px;cursor:pointer; }
+.otm-pay-toolbar .filter-form button:hover { background:#273548; }
+
+.otm-pay-info { display:flex;gap:24px;margin-bottom:12px;font-size:13px;color:#94a3b8; }
+.otm-pay-info strong { color:#e2e8f0; }
+.otm-pay-info .paid-total { color:#22c55e;font-weight:700; }
+
+.otm-pay-legend { display:flex;gap:20px;margin-bottom:16px;padding:10px 16px;background:#0f172a;border:1px solid #1e293b;border-radius:8px; }
+.otm-pay-legend-item { display:flex;align-items:center;gap:6px;font-size:13px;color:#94a3b8; }
+.otm-pay-legend-item .dot { font-size:15px; }
+.otm-pay-legend-item .dot.paid { color:#22c55e; }
+.otm-pay-legend-item .dot.overdue { color:#ef4444; }
+.otm-pay-legend-item .dot.not_paid { color:#475569; }
+
+.otm-pay-count { font-size:13px;color:#94a3b8;margin-bottom:12px; }
+
+.otm-pay-wrap { overflow-x:auto;border:1px solid #1e293b;border-radius:12px;background:#0f172a; }
+.otm-pay-table { width:100%;border-collapse:collapse;font-size:13px;min-width:950px; }
+.otm-pay-table th { background:#1e293b;color:#94a3b8;font-weight:600;padding:10px 6px;text-align:center;border-bottom:1px solid #334155;white-space:nowrap;position:sticky;top:0; }
+.otm-pay-table th:first-child { text-align:left;padding-left:14px;min-width:160px; }
+.otm-pay-table td { padding:0;border-bottom:1px solid #1e293b;text-align:center;vertical-align:middle; }
+.otm-pay-table tr:hover td { background:#1a2436; }
+.otm-pay-table .sname { padding:10px 14px;text-align:left;color:#e2e8f0;font-weight:500;white-space:nowrap; }
+.otm-pay-cell { cursor:pointer;padding:6px 2px;min-width:68px;height:46px;transition:background .1s;user-select:none; }
+.otm-pay-cell:hover { background:#273548; }
+.otm-pay-cell .amt { font-size:11px;color:#64748b;margin-bottom:1px; }
+.otm-pay-cell .stat { font-size:15px;line-height:1; }
+.otm-pay-cell .stat.paid { color:#22c55e; }
+.otm-pay-cell .stat.overdue { color:#ef4444; }
+.otm-pay-cell .stat.not_paid { color:#475569; }
+.otm-pay-cell .stat.loading { opacity:0.3; }
+.otm-pay-saved { position:fixed;bottom:24px;right:24px;background:#16a34a;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;transform:translateY(12px);transition:all .25s;z-index:50;display:flex;align-items:center;gap:8px; }
+.otm-pay-saved.show { opacity:1;transform:translateY(0); }
+.otm-pay-saved i { font-size:16px; }
+</style>
+{% endblock %}
+
+{% block otm_content %}
+{% csrf_token %}
+<div class="otm-pay-page">
+    <div class="otm-pay-side">
+        <div class="otm-card">
+            <h3>Tədris ili</h3>
+            {% for ay in academic_years %}
+            <a href="{% url 'switch_academic_year' %}?year_id={{ ay.pk }}" class="ay-item {% if current_academic_year and current_academic_year.pk == ay.pk %}active{% endif %}">
+                {{ ay.name }}
+            </a>
+            {% endfor %}
+        </div>
+        <div class="otm-card">
+            <h3>Export</h3>
+            <div class="otm-pay-export">
+                <a href="#"><i data-lucide="file-down"></i> Tələbə .xlsx</a>
+                <a href="#"><i data-lucide="file-down"></i> Tələbə .pdf</a>
+                <a href="#"><i data-lucide="file-down"></i> Ödəniş .xlsx</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="otm-pay-main">
+        <div class="otm-pay-toolbar">
+            <div class="year-nav">
+                {% if prev_year %}
+                <a href="{% url 'switch_academic_year' %}?year_id={{ prev_year.pk }}">← {{ prev_year.start_date.year }}</a>
+                {% endif %}
+                <span>{{ display_year }}</span>
+                {% if next_year %}
+                <a href="{% url 'switch_academic_year' %}?year_id={{ next_year.pk }}">{{ next_year.start_date.year }} →</a>
+                {% endif %}
+            </div>
+            <a href="{% url 'admin:payments_monthlypayment_add' %}" class="btn">+ Ayrıca qeyd</a>
+            <form class="filter-form" method="get">
+                <select name="group">
+                    <option value="">Qrup</option>
+                    <option value="">Ümumi</option>
+                    {% for g in groups %}
+                    <option value="{{ g.pk }}" {% if selected_group and selected_group.pk == g.pk %}selected{% endif %}>{{ g.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Tətbiq et</button>
+            </form>
+        </div>
+
+        <div class="otm-pay-info">
+            <span>Ümumi <strong class="paid-total">{{ total_paid|floatformat:2 }} ₼</strong> (yalnız «Ödənib»)</span>
+            <span>Gözlənilən: <strong>{{ expected_total|floatformat:2 }} ₼</strong></span>
+        </div>
+
+        <div class="otm-pay-legend">
+            <span class="otm-pay-legend-item"><span class="dot paid">✓</span> Ödənib</span>
+            <span class="otm-pay-legend-item"><span class="dot overdue">!</span> Gecikib</span>
+            <span class="otm-pay-legend-item"><span class="dot not_paid">—</span> Ödənməyib</span>
+        </div>
+
+        <div class="otm-pay-count">{{ total_students }} tələbə göstərilir.</div>
+
+        <div class="otm-pay-wrap">
+            <table class="otm-pay-table" id="payTable">
+                <thead>
+                    <tr>
+                        <th>Tələbə</th>
+                        {% for m_num, m_name in months_order_names %}
+                        <th>{{ m_name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in table_rows %}
+                    <tr>
+                        <td class="sname">{{ row.student.user.get_full_name|default:row.student.user.email }}</td>
+                        {% for cell in row.cells %}
+                        <td>
+                            <div class="otm-pay-cell" data-student="{{ row.student.pk }}" data-month="{{ cell.month }}" data-year="{{ cell.year }}">
+                                <div class="amt">{{ cell.amount|floatformat:0 }}</div>
+                                <div class="stat {{ cell.status }}">{{ cell.icon }}</div>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="13" style="padding:40px;text-align:center;color:#64748b;">Bu tədris ilində tələbə yoxdur.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function getCSRFToken() {
+    var input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (input && input.value) return input.value;
+    var cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+    return cookie ? cookie.split('=')[1] : '';
+}
+
+document.getElementById('payTable')?.addEventListener('click', function(e) {
+    var cell = e.target.closest('.otm-pay-cell');
+    if (!cell) return;
+    var statusEl = cell.querySelector('.stat');
+    if (statusEl.classList.contains('loading')) return;
+    statusEl.classList.add('loading');
+    fetch('/admin/payments/toggle/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+        body: JSON.stringify({
+            student_id: cell.dataset.student,
+            month: parseInt(cell.dataset.month),
+            year: parseInt(cell.dataset.year)
+        }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        statusEl.className = 'stat ' + data.status;
+        statusEl.textContent = data.icon;
+        statusEl.classList.remove('loading');
+        showSaved();
+    })
+    .catch(function() { statusEl.classList.remove('loading'); });
+});
+
+function showSaved() {
+    var el = document.getElementById('paySavedFlash');
+    if (!el) return;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function() { el.classList.remove('show'); }, 1500);
+}
+</script>
+<div id="paySavedFlash" class="otm-pay-saved"><i data-lucide="check"></i> Saxlandı ✓</div>
+{% endblock %}

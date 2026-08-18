@@ -1,0 +1,269 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block page_title %}{{ exam.title }} — Suallar{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.q-mgr-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
+.q-mgr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.q-mgr-num{background:var(--accent);color:#fff;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.q-mgr-text{font-size:14px;font-weight:600;color:var(--text-primary);flex:1;margin:0 14px;line-height:1.5}
+.q-mgr-meta{display:flex;gap:12px;font-size:11px;color:var(--text-muted)}
+.opt-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;margin-bottom:4px;font-size:13px}
+.opt-correct{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2)}
+.opt-wrong{background:var(--bg-primary);border:1px solid var(--border)}
+.form-section{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-top:24px}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+.form-input{width:100%;padding:10px 14px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px}
+.form-input:focus{outline:none;border-color:var(--accent)}
+.form-input-sm{width:80px}
+.form-select{padding:10px 14px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px}
+.opt-editor{display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-primary);border-radius:8px;margin-bottom:6px;border:1px solid var(--border)}
+.opt-editor input[type="text"]{flex:1;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:13px}
+.opt-editor input[type="text"]:focus{outline:none;border-color:var(--accent)}
+.opt-editor input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent)}
+.opt-editor .opt-letter{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;background:var(--bg-card);color:var(--text-muted);border:1px solid var(--border)}
+.opt-editor .rm-opt{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px}
+.opt-editor .rm-opt:hover{color:var(--danger)}
+.btn-primary{padding:12px 28px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-danger{padding:6px 14px;background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-danger:hover{background:rgba(239,68,68,0.2)}
+.btn-secondary{padding:6px 14px;background:var(--bg-primary);color:var(--text-secondary);border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-secondary:hover{background:var(--bg-hover)}
+.add-opt-btn{padding:6px 14px;background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.2);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
+.add-opt-btn:hover{background:rgba(16,185,129,0.2)}
+.text-area{width:100%;padding:10px 14px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;resize:vertical;min-height:80px}
+.text-area:focus{outline:none;border-color:var(--accent)}
+#addQuestionForm{display:none}
+</style>
+{% endblock %}
+
+{% block otm_content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+        <a href="{% url 'grading_exam_list' %}?exam_id={{ exam.pk }}" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;margin-bottom:4px">
+            <i data-lucide="arrow-left" style="width:14px;height:14px"></i> Qiymətləndirmə
+        </a>
+        <h1 style="margin:0;font-size:20px;font-weight:800">{{ exam.title }}</h1>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">
+            {{ questions|length }} sual &nbsp;|&nbsp; Ümumi: {{ total_points }} bal &nbsp;|&nbsp; {{ exam.get_exam_type_display }} &nbsp;|&nbsp; {{ exam.subject|default:"-" }}
+        </div>
+    </div>
+    <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('addQuestionForm').style.display=document.getElementById('addQuestionForm').style.display==='block'?'none':'block'" class="btn-primary" style="border:none">
+            <i data-lucide="plus" style="width:16px;height:16px;display:inline;vertical-align:middle"></i> Yeni Sual
+        </button>
+    </div>
+</div>
+
+<!-- Add Question Form -->
+<div class="form-section" id="addQuestionForm">
+    <h3 style="margin:0 0 16px;font-size:15px;font-weight:700">Yeni Sual Əlavə Et</h3>
+    <form method="POST" action="{% url 'exam_question_add' exam_id=exam.pk %}">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px">
+            <div class="form-row">
+                <label>Sual mətni</label>
+                <textarea name="text" class="text-area" rows="3" required placeholder="Sualı yazın..."></textarea>
+            </div>
+            <div class="form-row">
+                <label>Sual növü</label>
+                <select name="question_type" class="form-select" style="width:100%">
+                    <option value="single_choice">Tək seçimli</option>
+                    <option value="multiple_choice">Çox seçimli</option>
+                    <option value="true_false">Doğru/Yanlış</option>
+                    <option value="text">Mətn</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Bal</label>
+                <input type="number" name="points" value="1" min="0.5" step="0.5" class="form-input form-input-sm">
+            </div>
+            <div class="form-row">
+                <label>Sıra</label>
+                <input type="number" name="sort_order" value="0" class="form-input form-input-sm">
+            </div>
+        </div>
+
+        <div style="margin-top:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary)">Cavab Seçimləri</label>
+                <button type="button" onclick="addOption(this)" class="add-opt-btn">+ Seçim Əlavə Et</button>
+            </div>
+            <div id="addOpts">
+                <div class="opt-editor">
+                    <span class="opt-letter">A</span>
+                    <input type="text" name="option_0_text" placeholder="Cavab mətni">
+                    <input type="hidden" name="option_0_id" value="a">
+                    <input type="hidden" name="option_count" value="1">
+                    <label style="font-size:11px;display:flex;align-items:center;gap:4px;white-space:nowrap;color:var(--text-secondary)">
+                        <input type="checkbox" name="option_0_correct"> Düzgün
+                    </label>
+                    <button type="button" class="rm-opt" onclick="this.closest('.opt-editor').remove()">✕</button>
+                </div>
+                <div class="opt-editor">
+                    <span class="opt-letter">B</span>
+                    <input type="text" name="option_1_text" placeholder="Cavab mətni">
+                    <input type="hidden" name="option_1_id" value="b">
+                    <label style="font-size:11px;display:flex;align-items:center;gap:4px;white-space:nowrap;color:var(--text-secondary)">
+                        <input type="checkbox" name="option_1_correct"> Düzgün
+                    </label>
+                    <button type="button" class="rm-opt" onclick="this.closest('.opt-editor').remove()">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;gap:8px">
+            <button type="submit" class="btn-primary">Sualı Əlavə Et</button>
+            <button type="button" class="btn-secondary" onclick="document.getElementById('addQuestionForm').style.display='none'">Ləğv</button>
+        </div>
+    </form>
+</div>
+
+<!-- Questions List -->
+<div style="margin-top:24px">
+    {% for qd in questions %}
+    {% with q=qd.question %}
+    <div class="q-mgr-card" style="border-left:3px solid
+        {% if q.question_type == 'single_choice' or q.question_type == 'multiple_choice' %}var(--accent)
+        {% elif q.question_type == 'true_false' %}#fbbf24
+        {% else %}#a78bfa{% endif %}">
+        <div class="q-mgr-header">
+            <div style="display:flex;align-items:flex-start;gap:12px;flex:1">
+                <div class="q-mgr-num">{{ forloop.counter }}</div>
+                <div style="flex:1">
+                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);line-height:1.5">{{ q.text }}</div>
+                    <div class="q-mgr-meta" style="margin-top:6px">
+                        <span>{{ q.get_question_type_display }}</span>
+                        <span>{{ q.points }} bal</span>
+                        <span>Sıra: {{ q.sort_order }}</span>
+                        {% if qd.correct_ids %}
+                        <span style="color:#34d399">Düzgün: {{ qd.correct_ids|join:", "|upper }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+                <button onclick="toggleEdit('{{ q.pk }}')" class="btn-secondary">
+                    <i data-lucide="pencil" style="width:12px;height:12px"></i> Redaktə
+                </button>
+                <form method="POST" action="{% url 'exam_question_delete' exam_id=exam.pk question_id=q.pk %}" onsubmit="return confirm('Bu sualı silmək istəyirsiniz?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-danger">
+                        <i data-lucide="trash-2" style="width:12px;height:12px"></i> Sil
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Options -->
+        <div style="margin-top:8px">
+            {% for opt in qd.options %}
+            <div class="opt-row {% if opt.id in qd.correct_ids %}opt-correct{% else %}opt-wrong{% endif %}">
+                <span style="font-weight:700;font-size:12px;width:24px;color:var(--text-muted)">{{ opt.id|upper }}</span>
+                <span style="flex:1;font-size:13px">{{ opt.text }}</span>
+                {% if opt.id in qd.correct_ids %}
+                <span style="color:#34d399;font-size:11px;font-weight:700">✓ DÜZGÜN</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if not qd.options and q.text_answer %}
+            <div class="opt-row opt-wrong">
+                <span style="font-size:13px;color:var(--text-secondary)">{{ q.explanation|default:"Açıq sual — müstəqil yazılır"|truncatechars:100 }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Edit Form (hidden) -->
+        <div id="edit_{{ q.pk }}" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <form method="POST" action="{% url 'exam_question_edit' exam_id=exam.pk question_id=q.pk %}">
+                {% csrf_token %}
+                <div style="display:grid;grid-template-columns:3fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+                    <div class="form-row" style="margin:0">
+                        <label>Sual mətni</label>
+                        <textarea name="text" class="text-area" rows="2">{{ q.text }}</textarea>
+                    </div>
+                    <div class="form-row" style="margin:0">
+                        <label>Növ</label>
+                        <select name="question_type" class="form-select" style="width:100%">
+                            <option value="single_choice" {% if q.question_type == 'single_choice' %}selected{% endif %}>Tək seçimli</option>
+                            <option value="multiple_choice" {% if q.question_type == 'multiple_choice' %}selected{% endif %}>Çox seçimli</option>
+                            <option value="true_false" {% if q.question_type == 'true_false' %}selected{% endif %}>Doğru/Yanlış</option>
+                            <option value="text" {% if q.question_type == 'text' %}selected{% endif %}>Mətn</option>
+                        </select>
+                    </div>
+                    <div class="form-row" style="margin:0">
+                        <label>Bal</label>
+                        <input type="number" name="points" value="{{ q.points }}" step="0.5" class="form-input form-input-sm">
+                    </div>
+                    <div class="form-row" style="margin:0">
+                        <label>Sıra</label>
+                        <input type="number" name="sort_order" value="{{ q.sort_order }}" class="form-input form-input-sm">
+                    </div>
+                </div>
+                <div style="margin-bottom:12px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                        <label style="font-size:12px;font-weight:600;color:var(--text-secondary)">Cavab Seçimləri (düzgün olana ✓ qoyun)</label>
+                    </div>
+                    {% for opt in qd.options %}
+                    <div class="opt-editor">
+                        <span class="opt-letter">{{ opt.id|upper }}</span>
+                        <input type="text" name="option_{{ forloop.counter0 }}_text" value="{{ opt.text }}">
+                        <input type="hidden" name="option_{{ forloop.counter0 }}_id" value="{{ opt.id }}">
+                        <input type="hidden" name="option_count" value="{{ qd.options|length }}">
+                        <label style="font-size:11px;display:flex;align-items:center;gap:4px;white-space:nowrap;color:var(--text-secondary)">
+                            <input type="checkbox" name="option_{{ forloop.counter0 }}_correct" {% if opt.id in qd.correct_ids %}checked{% endif %}> Düzgün
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="display:flex;gap:8px">
+                    <button type="submit" class="btn-primary" style="padding:8px 20px;font-size:13px">Saxla</button>
+                    <button type="button" class="btn-secondary" onclick="toggleEdit('{{ q.pk }}')">Ləğv</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endwith %}
+    {% empty %}
+    <div style="padding:60px;text-align:center;background:var(--bg-card);border:1px solid var(--border);border-radius:12px">
+        <i data-lucide="help-circle" style="width:48px;height:48px;color:var(--text-muted);margin-bottom:12px"></i>
+        <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px">Hələ sual əlavə edilməyib</div>
+        <div style="font-size:12px;color:var(--text-muted)">Yuxarıdakı "Yeni Sual" düyməsinə basın</div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var optionIndex = {{ questions|length }} * 4;
+
+function addOption(btn) {
+    var container = document.getElementById('addOpts');
+    var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var count = container.querySelectorAll('.opt-editor').length;
+    if (count >= 10) return;
+    var letter = letters[count] || (count + 1);
+    var html = '<div class="opt-editor">' +
+        '<span class="opt-letter">' + letter + '</span>' +
+        '<input type="text" name="option_' + count + '_text" placeholder="Cavab mətni">' +
+        '<input type="hidden" name="option_' + count + '_id" value="' + letters[count].toLowerCase() + '">' +
+        '<input type="hidden" name="option_count" value="' + (count + 1) + '">' +
+        '<label style="font-size:11px;display:flex;align-items:center;gap:4px;white-space:nowrap;color:var(--text-secondary)">' +
+        '<input type="checkbox" name="option_' + count + '_correct"> Düzgün</label>' +
+        '<button type="button" class="rm-opt" onclick="this.closest(\'.opt-editor\').remove()">✕</button></div>';
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function toggleEdit(qid) {
+    var el = document.getElementById('edit_' + qid);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

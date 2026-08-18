@@ -2,28 +2,55 @@
 {% load static %}
 
 {% block content %}
-<section class="exam-list-section">
-  <h1>Sınaq İmtahanları</h1>
-  {% if exams %}
-    <div class="exam-cards">
+<section class="exam-page">
+  <div class="exam-page-container">
+    <h1 class="exam-page-title">Sınaq İmtahanları</h1>
+    <p class="exam-page-subtitle">Biliklərinizi yoxlayın, uğura bir addım yaxınlaşın!</p>
+
+    {% if exams %}
+    <div class="exam-grid">
       {% for exam in exams %}
-        <div class="exam-card">
-          <h2>{{ exam.title }}</h2>
-          <p>{{ exam.description|truncatewords:30 }}</p>
-          <p><strong>Tarix:</strong> {{ exam.date|date:"d.m.Y H:i" }}</p>
-          {% if exam.registration_deadline %}
-            <p><strong>Son müraciət:</strong> {{ exam.registration_deadline|date:"d.m.Y H:i" }}</p>
-          {% endif %}
-          <a href="{% url 'exam_detail' exam.slug %}" class="exam-btn">Ətraflı & Qeydiyyat</a>
+      <div class="exam-item">
+        <div class="exam-item-header">
+          <h3>{{ exam.title }}</h3>
         </div>
+        <div class="exam-item-body">
+          <p class="exam-item-desc">{{ exam.description|truncatewords:25 }}</p>
+          <div class="exam-item-meta">
+            <div class="exam-meta-row">
+              <i class="fa-solid fa-calendar-days"></i>
+              <span>{{ exam.date|date:"d.m.Y H:i" }}</span>
+            </div>
+            <div class="exam-meta-row">
+              <i class="fa-solid fa-clock"></i>
+              <span>Qeydiyyat: {{ exam.registration_deadline|date:"d.m.Y" }}</span>
+            </div>
+            {% if exam.price %}
+            <div class="exam-meta-row">
+              <i class="fa-solid fa-tag"></i>
+              <span>{{ exam.price }} AZN</span>
+            </div>
+            {% endif %}
+            {% if exam.location %}
+            <div class="exam-meta-row">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>{{ exam.location }}</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="exam-item-footer">
+          <a href="{% url 'exam_detail' exam.slug %}" class="exam-detail-btn">Qeydiyyatdan keç</a>
+        </div>
+      </div>
       {% endfor %}
     </div>
-  {% else %}
-    <p>Hazırda aktiv sınaq imtahanı yoxdur.</p>
-  {% endif %}
+    {% else %}
+    <div class="exam-empty">
+      <i class="fa-solid fa-inbox"></i>
+      <p>Hal-hazırda aktiv sınaq imtahanı yoxdur.</p>
+    </div>
+    {% endif %}
+  </div>
 </section>
-{% endblock %}
-
-{% block js %}
-<script src="{% static '../static/js/main.js' %}"></script>
 {% endblock %}

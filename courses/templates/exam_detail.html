@@ -1,0 +1,732 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ exam.title }} | Oğuz Sınaq</title>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+    integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-card: #0f172a;
+      --bg-soft: #0b1120;
+      --border: rgba(255, 255, 255, 0.07);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --faint: #64748b;
+      --emerald: #10b981;
+      --emerald-dark: #0d9488;
+      --amber: #f59e0b;
+      --red: #f87171;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--emerald); color: #fff; }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ============ HEADER ============ */
+    .snaq-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .snaq-header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      gap: 16px;
+    }
+    .snaq-logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .snaq-logo-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+    }
+    .snaq-logo-text b { font-size: 18px; font-weight: 700; display: block; line-height: 1.2; }
+    .snaq-logo-text b span { color: var(--emerald); }
+    .snaq-logo-text small {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+    .snaq-nav { display: flex; align-items: center; gap: 4px; }
+    .snaq-nav a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .snaq-nav a:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+    .snaq-nav a.active { color: #fff; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .snaq-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .snaq-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(16, 185, 129, 0.35); }
+    .snaq-burger { display: none; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding: 8px; }
+
+    .snaq-mobile { display: none; }
+
+    @media (max-width: 900px) {
+      .snaq-nav, .snaq-cta { display: none; }
+      .snaq-burger { display: block; }
+      .snaq-mobile {
+        display: none;
+        border-top: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.96);
+        padding: 16px;
+      }
+      .snaq-mobile.open { display: block; }
+      .snaq-mobile a {
+        display: block;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .snaq-mobile a:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+    }
+
+    /* ============ HERO ============ */
+    .snaq-hero { position: relative; overflow: hidden; }
+    .snaq-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.07), transparent 60%);
+    }
+    .snaq-hero-bg::before,
+    .snaq-hero-bg::after {
+      content: "";
+      position: absolute;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      filter: blur(90px);
+    }
+    .snaq-hero-bg::before { top: -140px; right: -140px; background: rgba(16, 185, 129, 0.12); }
+    .snaq-hero-bg::after { top: -140px; left: -140px; background: rgba(13, 148, 136, 0.12); }
+    .snaq-hero-inner {
+      position: relative;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 56px 24px 64px;
+      text-align: center;
+    }
+    .snaq-hero-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 28px;
+      transition: color 0.2s;
+    }
+    .snaq-hero-back:hover { color: var(--emerald); }
+    .snaq-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--emerald);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .snaq-live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .snaq-title {
+      margin: 20px auto 0;
+      max-width: 820px;
+      font-size: 40px;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .snaq-lead { margin: 14px auto 0; max-width: 620px; color: var(--muted); font-size: 15px; }
+
+    /* Stats */
+    .snaq-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 40px;
+    }
+    .snaq-stat {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      transition: border-color 0.2s;
+    }
+    .snaq-stat:hover { border-color: rgba(16, 185, 129, 0.4); }
+    .snaq-stat-icon {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 12px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--emerald);
+      font-size: 16px;
+    }
+    .snaq-stat-lbl { display: block; font-size: 11px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em; }
+    .snaq-stat-val { display: block; margin-top: 4px; font-size: 15px; font-weight: 700; color: var(--text); }
+
+    @media (max-width: 900px) { .snaq-stats { grid-template-columns: repeat(2, 1fr); } .snaq-title { font-size: 30px; } }
+    @media (max-width: 480px) { .snaq-stats { grid-template-columns: 1fr; } }
+
+    /* ============ BODY ============ */
+    .snaq-body { max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; }
+    .snaq-body-inner {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 32px;
+      align-items: start;
+    }
+    @media (max-width: 980px) { .snaq-body-inner { grid-template-columns: 1fr; } }
+
+    /* Card */
+    .snaq-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+    }
+    .snaq-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .snaq-card-title i { color: var(--emerald); }
+    .snaq-card-text { color: var(--muted); font-size: 14.5px; }
+    .snaq-card-text p { margin-bottom: 10px; }
+    .snaq-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .snaq-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+    }
+    .snaq-meta-item i { color: var(--emerald); }
+
+    /* Steps */
+    .snaq-steps { margin-top: 24px; }
+    .snaq-steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+    @media (max-width: 700px) { .snaq-steps-grid { grid-template-columns: 1fr; } }
+    .snaq-step {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 18px;
+      text-align: center;
+    }
+    .snaq-step-num {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.14);
+      border: 2px solid var(--emerald);
+      color: var(--emerald);
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .snaq-step p { font-size: 13px; color: var(--faint); }
+    .snaq-step p b { display: block; color: var(--text); font-size: 14px; margin-bottom: 4px; }
+
+    /* ============ FORM CARD ============ */
+    .snaq-form-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      position: sticky;
+      top: 92px;
+      scroll-margin-top: 92px;
+    }
+    @media (max-width: 980px) { .snaq-form-card { position: static; } }
+    .snaq-form-head { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+    .snaq-form-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(13, 148, 136, 0.18));
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--emerald);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .snaq-form-head h3 { font-size: 17px; font-weight: 700; }
+    .snaq-form-head p { font-size: 12.5px; color: var(--faint); margin-top: 2px; }
+
+    .snaq-field { margin-bottom: 14px; }
+    .snaq-field label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
+    .snaq-field .form-control {
+      width: 100%;
+      background: rgba(2, 6, 23, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .snaq-field .form-control::placeholder { color: var(--faint); }
+    .snaq-field .form-control:focus {
+      outline: none;
+      border-color: rgba(16, 185, 129, 0.6);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+    }
+    .snaq-field textarea.form-control { resize: vertical; min-height: 72px; }
+    .snaq-field-error { display: block; margin-top: 5px; font-size: 12px; color: var(--red); }
+
+    .snaq-btn {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 13px 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      color: #fff;
+      background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .snaq-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(16, 185, 129, 0.35); }
+
+    .snaq-note {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--faint);
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .snaq-note i { color: var(--emerald); margin-top: 2px; }
+
+    /* Alerts */
+    .snaq-alerts { margin-bottom: 18px; }
+    .snaq-alert {
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .snaq-alert.success { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); color: #6ee7b7; }
+    .snaq-alert.error { background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.35); color: #fca5a5; }
+    .snaq-alert.info { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: #7dd3fc; }
+
+    /* ============ CLOSED ============ */
+    .snaq-closed {
+      max-width: 560px;
+      margin: 64px auto;
+      padding: 48px 32px;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+    }
+    .snaq-closed-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 20px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--amber);
+      font-size: 28px;
+    }
+    .snaq-closed h1 { font-size: 24px; font-weight: 800; }
+    .snaq-closed p { color: var(--muted); margin: 10px 0 26px; font-size: 14px; }
+    .snaq-closed-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+      transition: all 0.2s;
+    }
+    .snaq-closed-btn:hover { transform: translateY(-1px); }
+
+    /* ============ FOOTER ============ */
+    .snaq-footer { background: #060614; border-top: 1px solid var(--border); position: relative; }
+    .snaq-footer::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.4), transparent);
+    }
+    .snaq-footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 56px 24px 40px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 40px;
+    }
+    @media (max-width: 900px) { .snaq-footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .snaq-footer-grid { grid-template-columns: 1fr; } }
+    .snaq-footer-brand p { color: var(--faint); font-size: 13.5px; margin-top: 14px; line-height: 1.7; }
+    .snaq-footer h4 { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+    .snaq-footer ul { list-style: none; }
+    .snaq-footer li { margin-bottom: 10px; }
+    .snaq-footer li a { color: var(--faint); font-size: 13.5px; transition: color 0.2s; display: flex; align-items: center; gap: 8px; }
+    .snaq-footer li a:hover { color: var(--emerald); }
+    .snaq-footer li i { width: 16px; text-align: center; color: var(--emerald); }
+    .snaq-footer-bottom {
+      border-top: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .snaq-footer-bottom p { font-size: 12px; color: #475569; }
+  </style>
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header class="snaq-header">
+    <div class="snaq-header-inner">
+      <a href="{% url 'exam_list' %}" class="snaq-logo">
+        <div class="snaq-logo-badge">S</div>
+        <div class="snaq-logo-text">
+          <b>Oğuz <span>Sınaq</span></b>
+          <small>Portalı</small>
+        </div>
+      </a>
+
+      <nav class="snaq-nav">
+        <a href="{% url 'home' %}"><i class="fa-solid fa-house"></i> Əsas səhifə</a>
+        <a href="{% url 'exam_list' %}" class="active"><i class="fa-solid fa-calendar-days"></i> Sınaqlar</a>
+        <a href="{% url 'public_results' %}"><i class="fa-solid fa-chart-simple"></i> Nəticələrim</a>
+        <a href="#exam-form"><i class="fa-solid fa-file-signature"></i> Qeydiyyat</a>
+      </nav>
+
+      <a href="#exam-form" class="snaq-cta">
+        <i class="fa-solid fa-plus"></i> Yeni qeydiyyat
+      </a>
+
+      <button class="snaq-burger" id="snaqBurger" aria-label="Menyu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="snaq-mobile" id="snaqMobile">
+      <a href="{% url 'home' %}"><i class="fa-solid fa-house"></i> Əsas səhifə</a>
+      <a href="{% url 'exam_list' %}"><i class="fa-solid fa-calendar-days"></i> Sınaqlar</a>
+      <a href="{% url 'public_results' %}"><i class="fa-solid fa-chart-simple"></i> Nəticələrim</a>
+      <a href="#exam-form"><i class="fa-solid fa-file-signature"></i> Qeydiyyatdan keç</a>
+    </div>
+  </header>
+
+  <main>
+    {% if exam.registration_deadline > now %}
+
+    <!-- ============ HERO ============ -->
+    <section class="snaq-hero">
+      <div class="snaq-hero-bg"></div>
+      <div class="snaq-hero-inner">
+        <a href="{% url 'exam_list' %}" class="snaq-hero-back">
+          <i class="fa-solid fa-arrow-left"></i> Bütün sınaqlar
+        </a>
+
+        <span class="snaq-live"><span class="snaq-live-dot"></span> Qeydiyyat açıqdır</span>
+        <h1 class="snaq-title">{{ exam.title }}</h1>
+        {% if exam.description %}
+        <p class="snaq-lead">{{ exam.description|truncatewords:45 }}</p>
+        {% endif %}
+
+        <div class="snaq-stats">
+          <div class="snaq-stat">
+            <div class="snaq-stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
+            <span class="snaq-stat-lbl">İmtahan tarixi</span>
+            <span class="snaq-stat-val">{{ exam.date|date:"d.m.Y" }}</span>
+          </div>
+          <div class="snaq-stat">
+            <div class="snaq-stat-icon"><i class="fa-solid fa-clock"></i></div>
+            <span class="snaq-stat-lbl">Başlama saatı</span>
+            <span class="snaq-stat-val">{{ exam.date|date:"H:i" }}</span>
+          </div>
+          <div class="snaq-stat">
+            <div class="snaq-stat-icon"><i class="fa-solid fa-hourglass-end"></i></div>
+            <span class="snaq-stat-lbl">Son qeydiyyat</span>
+            <span class="snaq-stat-val">{{ exam.registration_deadline|date:"d.m H:i" }}</span>
+          </div>
+          <div class="snaq-stat">
+            <div class="snaq-stat-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <span class="snaq-stat-lbl">Məkan</span>
+            <span class="snaq-stat-val">{{ exam.location|default:"Göstərilməyib" }}</span>
+          </div>
+          <div class="snaq-stat">
+            <div class="snaq-stat-icon"><i class="fa-solid fa-tag"></i></div>
+            <span class="snaq-stat-lbl">Qiymət</span>
+            <span class="snaq-stat-val">{{ exam.price|floatformat:2 }} AZN</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BODY ============ -->
+    <section class="snaq-body">
+      <div class="snaq-body-inner">
+        <div>
+          <article class="snaq-card">
+            <h2 class="snaq-card-title"><i class="fa-solid fa-circle-info"></i> İmtahan haqqında</h2>
+            <div class="snaq-card-text">{{ exam.description|default:"Bu imtahan haqqında ətraflı məlumat əlavə edilməyib."|linebreaks }}</div>
+            <div class="snaq-meta">
+              <span class="snaq-meta-item"><i class="fa-solid fa-users"></i> {{ exam.registrations.count }} nəfər qeydiyyatdan keçib</span>
+              <span class="snaq-meta-item"><i class="fa-solid fa-door-open"></i> Yerlər: {{ exam.max_participants|default:"Məhdudiyyətsiz" }}</span>
+            </div>
+          </article>
+
+          <div class="snaq-steps">
+            <h2 class="snaq-card-title"><i class="fa-solid fa-list-check"></i> Necə qeydiyyatdan keçmək olar?</h2>
+            <div class="snaq-steps-grid">
+              <div class="snaq-step">
+                <span class="snaq-step-num">1</span>
+                <p><b>Formanı doldurun</b>Ad və əlaqə məlumatlarınızı qeyd edin.</p>
+              </div>
+              <div class="snaq-step">
+                <span class="snaq-step-num">2</span>
+                <p><b>Əlaqə gözləyin</b>Komandamız telefon və ya e-poçtla sizinlə əlaqə saxlayar.</p>
+              </div>
+              <div class="snaq-step">
+                <span class="snaq-step-num">3</span>
+                <p><b>Qeydiyyat təsdiqlənir</b>Yeriniz ayrılır və imtahan barədə məlumat alırsınız.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="snaq-form-card" id="exam-form">
+          {% if messages %}
+          <div class="snaq-alerts">
+            {% for message in messages %}
+            <div class="snaq-alert {{ message.tags }}">
+              <i class="fa-solid fa-circle-check"></i> {{ message }}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="snaq-form-head">
+            <div class="snaq-form-icon"><i class="fa-solid fa-file-signature"></i></div>
+            <div>
+              <h3>Qeydiyyatdan keç</h3>
+              <p>Yer ayırmaq üçün formanı doldurun.</p>
+            </div>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="snaq-field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}<span class="snaq-field-error"><i class="fa-solid fa-triangle-exclamation"></i> {{ field.errors|join:", " }}</span>{% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="snaq-btn"><i class="fa-solid fa-paper-plane"></i> Qeydiyyatdan keç</button>
+          </form>
+
+          <p class="snaq-note"><i class="fa-solid fa-shield-halved"></i> Məlumatlarınız qorunur və yalnız sizinlə əlaqə üçün istifadə olunur.</p>
+        </aside>
+      </div>
+    </section>
+
+    {% else %}
+
+    <!-- ============ CLOSED ============ -->
+    <section class="snaq-closed">
+      <div class="snaq-closed-icon"><i class="fa-solid fa-hourglass-end"></i></div>
+      <h1>Qeydiyyat müddəti bitmişdir</h1>
+      <p>Bu sınaq üçün qeydiyyat artıq bağlanmışdır.</p>
+      <a href="{% url 'exam_list' %}" class="snaq-closed-btn"><i class="fa-solid fa-arrow-left"></i> Bütün sınaqlar</a>
+    </section>
+
+    {% endif %}
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="snaq-footer">
+    <div class="snaq-footer-grid">
+      <div class="snaq-footer-brand">
+        <a href="{% url 'home' %}" class="snaq-logo">
+          <div class="snaq-logo-badge">S</div>
+          <div class="snaq-logo-text">
+            <b>Oğuz <span>Sınaq</span></b>
+            <small>Portalı</small>
+          </div>
+        </a>
+        <p>Abituriyentlər üçün real imtahan formatına uyğun sınaq imtahanları. Qeydiyyatdan keçin, yerinizi ayırın və nəticənizi izləyin.</p>
+      </div>
+
+      <div>
+        <h4>Bölmələr</h4>
+        <ul>
+          <li><a href="{% url 'exam_list' %}"><i class="fa-solid fa-calendar-days"></i> İmtahan cədvəli</a></li>
+          <li><a href="{% url 'exam_list' %}"><i class="fa-solid fa-building"></i> Mərkəzlər</a></li>
+          <li><a href="#exam-form"><i class="fa-solid fa-file-signature"></i> Qeydiyyat</a></li>
+          <li><a href="{% url 'public_results' %}"><i class="fa-solid fa-chart-simple"></i> Nəticələrim</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Məlumat</h4>
+        <ul>
+          <li><a href="#exam-form">Qeydiyyat imtahandan 1 gün öncə bağlanır.</a></li>
+          <li><a href="#exam-form">Qeydiyyatdan sonra komandamız sizinlə əlaqə saxlayır.</a></li>
+          <li><a href="{% url 'public_results' %}">Nəticələr imtahandan sonra portalda dərc olunur.</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Əlaqə</h4>
+        <ul>
+          <li><a href="tel:+994705037020"><i class="fa-solid fa-phone"></i> +994 70 503 70 20</a></li>
+          <li><a href="mailto:oguztehsilmerkezi@gmail.com"><i class="fa-solid fa-envelope"></i> oguztehsilmerkezi@gmail.com</a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Balababa+M%C9%99cidov+55,+Bak%C4%B1,+Az%C9%99rbaycan" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot"></i> Balababa Məcidov 55, Bakı</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="snaq-footer-bottom">
+      <p>&copy; 2026 Oğuz Tədris Mərkəzi · Sınaq Portalı. Bütün hüquqlar qorunur.</p>
+      <p>Powered by <span style="color:#10b981;font-weight:600;">AI Technology</span></p>
+    </div>
+  </footer>
+
+  <script>
+    var burger = document.getElementById('snaqBurger');
+    var mobile = document.getElementById('snaqMobile');
+    if (burger && mobile) {
+      burger.addEventListener('click', function () {
+        mobile.classList.toggle('open');
+      });
+      mobile.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () { mobile.classList.remove('open'); });
+      });
+    }
+  </script>
+</body>
+</html>

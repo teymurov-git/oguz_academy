@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block title %}Giriş İnzibati | Oğuz Tədris Mərkəzi{% endblock %}
+
+{% block otm_content %}
+<div class="otm-no-access">
+    <div class="otm-no-access-icon">
+        <i data-lucide="shield-alert"></i>
+    </div>
+    <h1>Giriş İcazəsi Yoxdur</h1>
+    <p>{{ message|default:"Bu səhifəyə giriş üçün lazımi icazəniz yoxdur. Zəhmət olmasa administratorla əlaqə saxlayın." }}</p>
+    <a href="{% url 'admin_dashboard' %}" class="otm-btn otm-btn-primary">
+        <i data-lucide="arrow-left"></i> Geri Qayıt
+    </a>
+</div>
+{% endblock %}

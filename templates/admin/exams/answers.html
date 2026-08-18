@@ -1,0 +1,103 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block page_title %}Düzgün Cavablar{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.form-input{width:100%;padding:10px 14px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px}
+.form-input:focus{outline:none;border-color:var(--accent)}
+.btn-primary{padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-primary:hover{background:var(--accent-hover)}
+.success-msg{padding:12px 16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#34d399;font-size:13px;font-weight:600;margin-bottom:12px}
+.info-msg{padding:12px 16px;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);border-radius:10px;color:#818cf8;font-size:13px;font-weight:600;margin-bottom:12px}
+.ans-table{width:100%;border-collapse:collapse;font-size:13px}
+.ans-table th{padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.ans-table td{padding:6px 10px;border-bottom:1px solid rgba(148,163,184,0.12)}
+.ans-table tr:hover td{background:rgba(79,70,229,0.03)}
+.ans-select{width:72px;padding:6px 8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:14px;font-weight:700;text-align:center}
+.ans-select:focus{outline:none;border-color:var(--accent)}
+.qtext-input{width:100%;padding:8px 12px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px}
+.qtext-input:focus{outline:none;border-color:var(--accent)}
+.subj-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-radius:12px 12px 0 0;margin-bottom:0}
+</style>
+{% endblock %}
+
+{% block otm_content %}
+<div class="otm-welcome">
+    <div class="otm-welcome-content">
+        <h1>{{ exam.title }} — Düzgün Cavablar</h1>
+        <p>
+            {{ exam.get_dim_type_display }} &nbsp;|&nbsp; {{ exam.get_exam_group_display }}
+            {% if exam.group_subtype %} &nbsp;|&nbsp; {{ exam.get_group_subtype_display }}{% endif %}
+            &nbsp;|&nbsp; Doldurulub: {{ answered }}/{{ total }}
+        </p>
+    </div>
+</div>
+
+{% if messages %}
+{% for msg in messages %}
+<div class="{% if msg.tags == 'success' %}success-msg{% else %}info-msg{% endif %}">{{ msg }}</div>
+{% endfor %}
+{% endif %}
+
+<form method="POST" action="">
+{% csrf_token %}
+{% for block in subject_blocks %}
+<div class="otm-card" style="padding:0;margin-bottom:20px;overflow:hidden">
+    <div class="subj-header" style="background:rgba(79,70,229,0.08);border-bottom:1px solid var(--border)">
+        <div style="font-size:15px;font-weight:800;color:var(--text-primary)">{{ block.name }}</div>
+        <div style="font-size:12px;color:var(--text-muted)">Çəki: {{ block.coeff }} &nbsp;|&nbsp; {{ block.questions|length }} sual</div>
+    </div>
+    <div style="padding:12px 18px 16px">
+        <table class="ans-table">
+            <tr>
+                <th style="width:40px">№</th>
+                <th>Sual</th>
+                <th style="width:110px">Düzgün cavab</th>
+            </tr>
+            {% for q in block.questions %}
+            <tr>
+                <td style="font-weight:700;color:var(--text-muted)">{{ q.question_number|default:forloop.counter }}</td>
+                <td style="padding:4px 10px">
+                    {% if q.grading_method == 'coefficient' %}
+                    <input type="text" name="q_{{ q.pk }}_text" class="qtext-input" value="{{ q.text }}">
+                    <div style="font-size:11px;color:#fbbf24;margin-top:4px">Tam açıq sual — cavab burada daxil edilmir, yoxlamada qiymətləndirilir.</div>
+                    {% else %}
+                    <input type="text" name="q_{{ q.pk }}_text" class="qtext-input" value="{{ q.text }}">
+                    {% endif %}
+                </td>
+                <td>
+                    {% if q.grading_method == 'coefficient' %}
+                    <span style="font-size:11px;color:var(--text-muted);white-space:nowrap">{{ q.points }} bal (əmsal)</span>
+                    {% elif q.grading_method == 'fixed' %}
+                    <input type="text" name="q_{{ q.pk }}_correct" class="ans-select" style="width:140px" value="{{ q.current_correct_text }}" placeholder="Düzgün cavab">
+                    {% else %}
+                    <select name="q_{{ q.pk }}" class="ans-select">
+                        <option value="">—</option>
+                        {% for letter in answer_options %}
+                        <option value="{{ letter }}" {% if q.current_correct == letter %}selected{% endif %}>{{ letter }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="color:var(--text-muted);font-size:12px;text-align:center;padding:16px">Bu fənn üçün sual yaradılmayıb.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endfor %}
+
+<div style="display:flex;gap:10px;align-items:center">
+    <button type="submit" class="btn-primary" style="height:44px;padding:0 32px">
+        <i data-lucide="save" style="width:16px;height:16px;display:inline;vertical-align:middle"></i> Cavabları Yadda Saxla
+    </button>
+    <a href="{% url 'dim_exam_list' %}" style="text-decoration:none;color:var(--text-muted);font-size:13px;font-weight:600">← İmtahanlara qayıt</a>
+    <a href="{% url 'grading_exam_list' %}?exam_id={{ exam.pk }}" style="text-decoration:none;color:var(--accent);font-size:13px;font-weight:600;margin-left:auto">
+        Qiymətləndirməyə keç →</a>
+</div>
+</form>
+{% endblock %}
