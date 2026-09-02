@@ -181,6 +181,16 @@
         </a>
         {% endif %}
 
+        {% if is_super or is_admin_role %}
+        <a href="/admin/core/contact/" class="otm-app-card">
+            <div class="otm-app-card-header">
+                <div class="otm-app-card-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><i data-lucide="mail"></i></div>
+                <h3>Mesajlar</h3>
+            </div>
+            <p>Əlaqə formasından gələn mesajlar</p>
+        </a>
+        {% endif %}
+
         {% if can_see_attendance %}
         <a href="/admin/attendance/attendance/" class="otm-app-card">
             <div class="otm-app-card-header">

@@ -12,7 +12,7 @@ class AbstractModel(models.Model):
 
 class Contact(AbstractModel):
     first_name = models.CharField('first name', max_length=100)
-    last_name = models.CharField('last name', max_length=100)
+    last_name = models.CharField('last name', max_length=100, blank=True, null=True)
     email = models.EmailField('email')
     phone = models.CharField('phone', max_length=100, blank=True, null=True)
     message = models.TextField('message')

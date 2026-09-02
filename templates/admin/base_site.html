@@ -116,6 +116,13 @@
         </a>
         {% endif %}
 
+        {% if is_super or is_admin_role %}
+        <a href="/admin/core/contact/" class="otm-nav-item {% if '/core/contact' in request.path %}active{% endif %}">
+            <i data-lucide="mail"></i>
+            <span>Mesajlar</span>
+        </a>
+        {% endif %}
+
         {# ── Əməliyyatlar ── #}
         {% if show_section_operations %}
         <div class="otm-nav-divider"></div>

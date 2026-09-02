@@ -213,6 +213,35 @@
         </div>
     </div>
 
+    <!-- Recent Messages -->
+    {% if is_super or is_admin_role %}
+    <div class="otm-grid-equal" style="margin-top:1.25rem">
+        <div class="otm-card">
+            <div class="otm-card-header">
+                <div>
+                    <h3>Son Mesajlar</h3>
+                    <small>Əlaqə formasından gələn mesajlar</small>
+                </div>
+                <a href="/admin/core/contact/" class="card-link">Hamısını Bax →</a>
+            </div>
+            <div class="otm-card-body">
+                {% for m in recent_messages %}
+                <div class="otm-activity">
+                    <div class="otm-activity-dot blue"></div>
+                    <div>
+                        <div class="otm-activity-text"><strong>{{ m.first_name }}{% if m.last_name %} {{ m.last_name }}{% endif %}</strong> — {{ m.email }}</div>
+                        <div class="otm-activity-time">{{ m.message|truncatechars:80 }}</div>
+                        <div class="otm-activity-time">{{ m.created_at|date:"d.m.Y H:i" }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="otm-empty"><p>Hələ mesaj yoxdur</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 {% endblock %}
 
 {% block extra_js %}

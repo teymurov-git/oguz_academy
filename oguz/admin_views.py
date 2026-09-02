@@ -14,6 +14,7 @@ from attendance.models import Attendance
 from employees.models import Employee
 from roles.models import Role, UserRole
 from account.models import User
+from core.models import Contact
 
 
 def get_user_role(user):
@@ -130,6 +131,7 @@ def admin_dashboard(request):
     recent_students = students.select_related('user').order_by('-enrollment_date')[:5]
     recent_payments = payments.select_related('student__user').order_by('-payment_date')[:5]
     upcoming_groups = groups.select_related('course', 'teacher__user').order_by('start_date')[:5]
+    recent_messages = Contact.objects.order_by('-created_at')[:5]
 
     months = []
     income_data = []
@@ -147,6 +149,7 @@ def admin_dashboard(request):
         'recent_students': recent_students,
         'recent_payments': recent_payments,
         'upcoming_groups': upcoming_groups,
+        'recent_messages': recent_messages,
         'chart_data': chart_data,
         'is_super': is_super,
         'user_role': user_role,
